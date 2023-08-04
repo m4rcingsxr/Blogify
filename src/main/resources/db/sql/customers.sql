@@ -1,0 +1,10 @@
+INSERT INTO customers (email, password, first_name, last_name) VALUES ('john.doe@example.com', '$2b$12$6tSNpM7dW4Hm1.WQIzlYI.JN7wDqqzwEATIQYzXux8I5WcC9/5OQK', 'John', 'Doe');
+INSERT INTO customers (email, password, first_name, last_name) VALUES ('jane.smith@example.com', '$2b$12$qN5CP6ZJpyNpyRkuOAp5quB90CP8K1hj/hkwEIVXeY08V8ixCkhXC', 'Jane', 'Smith');
+INSERT INTO customers (email, password, first_name, last_name) VALUES ('alice.jones@example.com', '$2b$12$5i1AiWNPMugob1mOojYrr.lwj8fXegEpw2sFy4gubvY/WI.oxNeHm', 'Alice', 'Jones');
+INSERT INTO customers (email, password, first_name, last_name) VALUES ('bob.brown@example.com', '$2b$12$lbCjKYJFe/XJ73Et/y3DNO41dsX5CIyjbpu6CtTVvV2AcDVwO0GCu', 'Bob', 'Brown');
+INSERT INTO customers (email, password, first_name, last_name) VALUES ('charlie.davis@example.com', '$2b$12$cH6UcKjAAU6eXHEfB9oEuevWsiQ89FgurEKHh4zP8zQa9V5KToPpq', 'Charlie', 'Davis');
+INSERT INTO customers (email, password, first_name, last_name) VALUES ('diana.evans@example.com', '$2b$12$HMS8w/GkXMymhaZsYn4SPOFHZiFxtiOhETxrlJstQ/F1cwBlbQJXW', 'Diana', 'Evans');
+INSERT INTO customers (email, password, first_name, last_name) VALUES ('frank.harris@example.com', '$2b$12$rtnyX1JV7Pr7/QuZbEYg2Oy7aHlP8vpv/EXnEt0Cvi89X0UZ1b6Em', 'Frank', 'Harris');
+INSERT INTO customers (email, password, first_name, last_name) VALUES ('grace.lee@example.com', '$2b$12$ZHudxc0NMc8i1qIXtoVV5OL6uDsSK/Ff3TkOg90mzlI1joTLBl8qy', 'Grace', 'Lee');
+INSERT INTO customers (email, password, first_name, last_name) VALUES ('henry.clark@example.com', '$2b$12$nEwi1b9xY8lsXP2cOBosb.9AfTHp06lyLiaJDuQv0/MUx30YE5jqu', 'Henry', 'Clark');
+INSERT INTO customers (email, password, first_name, last_name) VALUES ('isabel.martin@example.com', '$2b$12$2RRWXLnpgRUr3uUqe/SAl.VkxRVBfvx6kEPooDUk4lZ5WQF.PySZm', 'Isabel', 'Martin');

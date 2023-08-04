@@ -1,0 +1,10 @@
+INSERT INTO customers (email, password, first_name, last_name) VALUES ('john.doe@example.com', 'password123', 'John', 'Doe');
+INSERT INTO customers (email, password, first_name, last_name) VALUES ('jane.smith@example.com', 'password123', 'Jane', 'Smith');
+INSERT INTO customers (email, password, first_name, last_name) VALUES ('alice.jones@example.com', 'password123', 'Alice', 'Jones');
+INSERT INTO customers (email, password, first_name, last_name) VALUES ('bob.brown@example.com', 'password123', 'Bob', 'Brown');
+INSERT INTO customers (email, password, first_name, last_name) VALUES ('charlie.davis@example.com', 'password123', 'Charlie', 'Davis');
+INSERT INTO customers (email, password, first_name, last_name) VALUES ('diana.evans@example.com', 'password123', 'Diana', 'Evans');
+INSERT INTO customers (email, password, first_name, last_name) VALUES ('frank.harris@example.com', 'password123', 'Frank', 'Harris');
+INSERT INTO customers (email, password, first_name, last_name) VALUES ('grace.lee@example.com', 'password123', 'Grace', 'Lee');
+INSERT INTO customers (email, password, first_name, last_name) VALUES ('henry.clark@example.com', 'password123', 'Henry', 'Clark');
+INSERT INTO customers (email, password, first_name, last_name) VALUES ('isabel.martin@example.com', 'password123', 'Isabel', 'Martin');

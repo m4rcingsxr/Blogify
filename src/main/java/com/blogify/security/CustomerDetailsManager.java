@@ -1,9 +1,11 @@
 package com.blogify.security;
 
-import com.blogify.dao.CustomerRepository;
+import com.blogify.repository.CustomerRepository;
 import com.blogify.entity.Customer;
-import com.blogify.exception.CustomerNotFoundException;
+import com.blogify.exception.ApiException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,7 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Service
@@ -31,16 +33,14 @@ public class CustomerDetailsManager implements UserDetailsManager {
 
     @Override
     public void updateUser(UserDetails user) {
-        Customer customer = customerRepository.findByEmail(user.getUsername()).orElseThrow(
-                CustomerNotFoundException::new);
+        Customer customer = customerRepository.findByEmail(user.getUsername()).orElseThrow(this::generateNotFoundException);
         customer.setPassword(passwordEncoder.encode(user.getPassword()));
         customerRepository.save(customer);
     }
 
     @Override
     public void deleteUser(String username) {
-        Customer customer = customerRepository.findByEmail(username).orElseThrow(
-                CustomerNotFoundException::new);
+        Customer customer = customerRepository.findByEmail(username).orElseThrow(this::generateNotFoundException);
 
         customerRepository.delete(customer);
     }
@@ -48,15 +48,14 @@ public class CustomerDetailsManager implements UserDetailsManager {
     @Override
     public void changePassword(String oldPassword, String newPassword) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        Customer customer = customerRepository.findByEmail(username).orElseThrow(
-                CustomerNotFoundException::new);
+        Customer customer = customerRepository.findByEmail(username).orElseThrow(this::generateNotFoundException);
 
         if (!passwordEncoder.matches(oldPassword, customer.getPassword())) {
             throw new IllegalArgumentException("Old password is incorrect");
         }
 
         customer.setPassword(passwordEncoder.encode(newPassword));
-        
+
         customerRepository.save(customer);
     }
 
@@ -67,9 +66,17 @@ public class CustomerDetailsManager implements UserDetailsManager {
 
     @Override
     public UserDetails loadUserByUsername(String username) { // return 401 on exception
-        Customer customer = customerRepository.findByEmail(username).orElseThrow(
-                CustomerNotFoundException::new);
+        Customer customer = customerRepository.findByEmail(username).orElseThrow(this::generateNotFoundException);
 
-        return new User(customer.getEmail(), customer.getPassword(), Collections.emptyList());
+        List<SimpleGrantedAuthority> authorities = customer.getRoles()
+                .stream()
+                .map(role -> new SimpleGrantedAuthority(role.getName()))
+                .toList();
+
+        return new User(customer.getEmail(), customer.getPassword(), authorities);
+    }
+
+    private ApiException generateNotFoundException() {
+        return new ApiException(HttpStatus.NOT_FOUND, "Customer not found");
     }
 }

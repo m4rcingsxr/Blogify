@@ -1,6 +1,6 @@
 package com.blogify.service;
 
-import com.blogify.dao.CustomerRepository;
+import com.blogify.repository.CustomerRepository;
 import com.blogify.entity.Customer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

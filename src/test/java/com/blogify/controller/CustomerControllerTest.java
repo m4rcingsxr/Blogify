@@ -17,9 +17,9 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @AutoConfigureMockMvc
 @SpringBootTest
@@ -37,8 +37,8 @@ class CustomerControllerTest {
         Customer customer1 = CustomerTestUtil.generateDummyCustomer();
         Customer customer2 = CustomerTestUtil.generateDummyCustomer();
 
-        customer1.setId(1);
-        customer2.setId(2);
+        customer1.setId(1L);
+        customer2.setId(2L);
 
         when(customerService.findAll()).thenReturn(List.of(customer1, customer2));
 
@@ -53,4 +53,27 @@ class CustomerControllerTest {
         verify(customerService, times(1)).findAll();
     }
 
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void givenCustomerId_whenDeleteCustomer_thenDeleteCustomerIsInvoked() throws Exception {
+        doNothing().when(customerService).deleteCustomer(1L);
+
+        mockMvc.perform(delete("/api/customers/1"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(""));
+
+        verify(customerService, times(1)).deleteCustomer(1L);
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void givenCustomer() throws Exception {
+        doNothing().when(customerService).deleteCustomer(1L);
+
+        mockMvc.perform(delete("/api/customers/''"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(""));
+
+        verify(customerService, times(1)).deleteCustomer(1L);
+    }
 }

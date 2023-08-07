@@ -24,7 +24,7 @@ public class Role extends BaseEntity {
     @Column(name = "description", nullable = false, length = 255)
     private String description;
 
-    public Role(Integer id, String name, String description) {
+    public Role(Long id, String name, String description) {
         super(id);
     }
 

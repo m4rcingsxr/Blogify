@@ -60,4 +60,15 @@ class CustomerRepositoryTest {
         assertEquals(expectedSize, customers.size());
     }
 
+    @Test
+    void givenCustomerId_whenDeleteById_thenCustomerDeleted() {
+        Optional<Customer> customer = customerRepository.findById(1L);
+
+        assertTrue(customer.isPresent());
+
+        customerRepository.delete(customer.get());
+        Optional<Customer> deletedCustomer = customerRepository.findById(1L);
+        assertFalse(deletedCustomer.isPresent());
+    }
+
 }

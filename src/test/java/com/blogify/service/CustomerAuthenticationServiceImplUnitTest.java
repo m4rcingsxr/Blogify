@@ -56,7 +56,7 @@ class CustomerAuthenticationServiceImplUnitTest {
         registrationRequest = new RegistrationRequest("John", "Doe", "email@example.com", "password");
 
         Customer customer = new Customer();
-        customer.setId(1);
+        customer.setId(1L);
         customer.setFirstName("John");
         customer.setLastName("Doe");
         customer.setEmail("email@example.com");

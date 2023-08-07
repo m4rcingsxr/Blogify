@@ -38,7 +38,7 @@ public class Customer extends BaseEntity {
     )
     private Set<Role> roles;
 
-    public Customer(Integer id, String email, String password, String firstName, String lastName,
+    public Customer(Long id, String email, String password, String firstName, String lastName,
                     Set<Role> roles) {
         super(id);
         this.email = email;

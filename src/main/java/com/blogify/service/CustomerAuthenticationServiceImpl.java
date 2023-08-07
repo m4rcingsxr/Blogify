@@ -56,7 +56,7 @@ public class CustomerAuthenticationServiceImpl implements CustomerAuthentication
 
         Set<Role> roles = new HashSet<>();
         Role customerRole = new Role();
-        customerRole.setId(3);
+        customerRole.setId(3L);
         roles.add(customerRole);
         customer.setRoles(roles);
 

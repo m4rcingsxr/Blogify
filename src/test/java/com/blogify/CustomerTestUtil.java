@@ -16,14 +16,14 @@ public class CustomerTestUtil {
 
     public static Role generateAdminRole() {
         Role role = new Role();
-        role.setId(1);
+        role.setId(1L);
         role.setName("ROLE_ADMIN");
         return role;
     }
 
     public static Role generateUserRole() {
         Role role = new Role();
-        role.setId(3);
+        role.setId(3L);
         role.setName("ROLE_USER");
         return role;
     }

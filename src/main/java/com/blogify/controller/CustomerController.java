@@ -23,6 +23,13 @@ public class CustomerController {
         return ResponseEntity.ok(customerService.findAll());
     }
 
+    @GetMapping("/{customerId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Customer> findById(@PathVariable Long customerId) {
+        Customer customer = customerService.findById(customerId);
+        return ResponseEntity.ok(customer);
+    }
+
     @DeleteMapping("/{customerId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteCustomer(@PathVariable(required = true) Long customerId) {

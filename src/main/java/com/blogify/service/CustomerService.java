@@ -20,10 +20,13 @@ public class CustomerService {
     }
 
     public void deleteCustomer(Long customerId) {
-        Customer customer = customerRepository.findById(customerId).orElseThrow(
-                this::generateCustomerNotFound);
+        Customer customer = findById(customerId);
 
         customerRepository.delete(customer);
+    }
+
+    public Customer findById(Long customerId) {
+        return customerRepository.findById(customerId).orElseThrow(this::generateCustomerNotFound);
     }
 
     private ApiException generateCustomerNotFound() {

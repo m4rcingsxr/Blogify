@@ -61,6 +61,26 @@ class CustomerRepositoryTest {
     }
 
     @Test
+    void givenCustomerId_whenFindById_thenCustomerFound() {
+        long customerId = 4L;
+
+        Optional<Customer> byId = customerRepository.findById(customerId);
+
+        assertTrue(byId.isPresent());
+        assertEquals(customerId, byId.get().getId());
+    }
+
+    @Test
+    void givenNotExistingCustomerId_whenFindById_thenCustomerFound() {
+        long customerId = 5L;
+
+        Optional<Customer> customer = customerRepository.findById(customerId);
+
+        assertTrue(customer.isEmpty());
+    }
+
+
+    @Test
     void givenCustomerId_whenDeleteById_thenCustomerDeleted() {
         Optional<Customer> customer = customerRepository.findById(1L);
 

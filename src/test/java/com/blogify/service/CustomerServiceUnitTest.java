@@ -9,6 +9,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 
 import java.util.Optional;
@@ -21,6 +22,9 @@ class CustomerServiceUnitTest {
 
     @Mock
     private CustomerRepository customerRepository;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
     @InjectMocks
     private CustomerService customerService;
@@ -71,6 +75,59 @@ class CustomerServiceUnitTest {
         verifyNoMoreInteractions(customerRepository);
     }
 
+    @Test
+    void givenExistingWithPasswordCustomer_whenSaveCustomer_thenCustomerIsUpdatedWithNewBcryptPassword() {
+        Customer existingCustomer = CustomerTestUtil.generateDummyCustomer();
+        existingCustomer.setId(1L);
 
+        Customer newCustomer = CustomerTestUtil.generateDummyCustomer();
+        newCustomer.setId(1L);
+
+        String rawPassword = newCustomer.getPassword();
+
+        when(customerRepository.findById(existingCustomer.getId())).thenReturn(Optional.of(existingCustomer));
+        when(passwordEncoder.encode(newCustomer.getPassword())).thenReturn("{bcrypt}" +rawPassword);
+
+        customerService.update(existingCustomer.getId(), newCustomer);
+
+        assertTrue(newCustomer.getPassword().startsWith("{bcrypt}"));
+
+        verify(customerRepository, times(1)).findById(existingCustomer.getId());
+        verify(passwordEncoder, times(1)).encode(rawPassword);
+        verify(customerRepository, times(1)).save(newCustomer);
+    }
+
+    @Test
+    void givenExistingWithoutPasswordCustomer_whenSaveCustomer_thenCustomerIsUpdatedWithOldPassword() {
+        Customer existingCustomer = CustomerTestUtil.generateDummyCustomer();
+        existingCustomer.setPassword("existingPassword");
+        existingCustomer.setId(1L);
+
+        Customer newCustomer = CustomerTestUtil.generateDummyCustomer();
+        existingCustomer.setPassword(null);
+        newCustomer.setId(1L);
+
+        when(customerRepository.findById(existingCustomer.getId())).thenReturn(Optional.of(existingCustomer));
+
+        customerService.update(existingCustomer.getId(), newCustomer);
+
+        assertEquals(existingCustomer.getPassword(), newCustomer.getPassword());
+
+        verify(customerRepository, times(1)).findById(existingCustomer.getId());
+        verify(customerRepository, times(1)).save(newCustomer);
+    }
+
+    @Test
+    void givenNotExistingCustomer_whenUpdate_thenShouldThrowApiException() {
+        Customer notExistingCustomer = CustomerTestUtil.generateDummyCustomer();
+        notExistingCustomer.setId(-1L);
+
+        when(customerRepository.findById(notExistingCustomer.getId())).thenReturn(Optional.empty());
+
+        assertThrows(ApiException.class, () -> customerService.update(notExistingCustomer.getId(), notExistingCustomer));
+
+        verify(customerRepository, times(1)).findById(notExistingCustomer.getId());
+        verifyNoInteractions(passwordEncoder);
+    }
 
 }

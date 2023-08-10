@@ -3,6 +3,7 @@ package com.blogify.controller;
 import com.blogify.CustomerTestUtil;
 import com.blogify.entity.Customer;
 import com.blogify.service.CustomerService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +18,7 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @AutoConfigureMockMvc
@@ -30,6 +30,9 @@ class CustomerControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Test
     @WithMockUser(roles = "ADMIN")
@@ -86,5 +89,30 @@ class CustomerControllerTest {
                 .andExpect(jsonPath("$.roles[*].name", containsInAnyOrder("ROLE_ADMIN", "ROLE_USER")));
 
         verify(customerService, times(1)).findById(customerId);
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void givenCustomer_whenUpdateCustomer_thenCustomerUpdated() throws Exception {
+        long customerId = 3;
+
+        Customer customer = CustomerTestUtil.generateDummyCustomer();
+        customer.setId(customerId);
+
+        when(customerService.update(customerId, customer)).thenReturn(customer);
+
+        mockMvc.perform(put("/api/customers/{customerId}", customerId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(customer)))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.email", equalTo(customer.getEmail())))
+                .andExpect(jsonPath("$.firstName", equalTo(customer.getFirstName())))
+                .andExpect(jsonPath("$.lastName", equalTo(customer.getLastName())))
+                .andExpect(jsonPath("$.password", equalTo(customer.getPassword())))
+                .andExpect(jsonPath("$.roles", hasSize(2)))
+                .andExpect(jsonPath("$.roles[*].name", containsInAnyOrder("ROLE_ADMIN", "ROLE_USER")));
+
+        verify(customerService, times(1)).update(customerId, customer);
     }
 }

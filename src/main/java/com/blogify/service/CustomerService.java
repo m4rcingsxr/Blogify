@@ -5,6 +5,7 @@ import com.blogify.repository.CustomerRepository;
 import com.blogify.entity.Customer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,6 +15,7 @@ import java.util.List;
 public class CustomerService {
 
     private final CustomerRepository customerRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public List<Customer> findAll() {
         return customerRepository.findAll();
@@ -23,6 +25,18 @@ public class CustomerService {
         Customer customer = findById(customerId);
 
         customerRepository.delete(customer);
+    }
+
+    public Customer update(Long customerId, Customer customer) {
+        Customer existingCustomer = findById(customerId);
+
+        if(customer.getPassword() != null) {
+            customer.setPassword(passwordEncoder.encode(customer.getPassword()));
+        } else {
+            customer.setPassword(existingCustomer.getPassword());
+        }
+
+        return customerRepository.save(customer);
     }
 
     public Customer findById(Long customerId) {

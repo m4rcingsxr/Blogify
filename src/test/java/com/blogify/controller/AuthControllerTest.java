@@ -3,6 +3,7 @@ package com.blogify.controller;
 import com.blogify.payload.LoginRequest;
 import com.blogify.payload.RegistrationRequest;
 import com.blogify.service.CustomerAuthenticationService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -20,6 +21,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class AuthControllerTest {
 
+    private static final String LOGIN_URL = "/api/auth/login";
+    private static final String REGISTER_URL = "/api/auth/register";
+    private static final String JWT_TOKEN = "jwt token";
+    private static final String LOGIN_JSON = "{\"username\":\"testuser\", \"password\":\"testpassword\"}";
+    private static final String REGISTER_JSON = "{\"username\":\"newuser\", \"password\":\"newpassword\", \"email\":\"newuser@example.com\"}";
+
     @MockBean
     private CustomerAuthenticationService authService;
 
@@ -28,22 +35,14 @@ class AuthControllerTest {
 
     @Test
     void givenValidLoginRequest_whenLogin_thenReturnsToken() throws Exception {
+        when(authService.login(any(LoginRequest.class))).thenReturn(JWT_TOKEN);
 
-        // Given
-        String token = "jwt token";
-        LoginRequest loginRequest = new LoginRequest();
-        loginRequest.setEmail("testuser");
-        loginRequest.setPassword("testpassword");
-
-        when(authService.login(any(LoginRequest.class))).thenReturn(token);
-
-        // When & Then
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/login")
+        mockMvc.perform(MockMvcRequestBuilders.post(LOGIN_URL)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content("{\"username\":\"testuser\", \"password\":\"testpassword\"}"))
+                                .content(LOGIN_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.accessToken").value(token))
+                .andExpect(jsonPath("$.accessToken").value(JWT_TOKEN))
                 .andExpect(jsonPath("$.tokenType").value("Bearer"));
 
         verify(authService, times(1)).login(any(LoginRequest.class));
@@ -51,21 +50,16 @@ class AuthControllerTest {
 
     @Test
     void givenValidRegistrationRequest_whenRegister_thenReturnsCreated() throws Exception {
-        // Given
         String response = "User registered successfully";
-        RegistrationRequest registrationRequest = new RegistrationRequest();
-        registrationRequest.setEmail("newuser");
-        registrationRequest.setPassword("newpassword");
-        registrationRequest.setEmail("newuser@example.com");
 
         when(authService.register(any(RegistrationRequest.class))).thenReturn(response);
 
-        // When & Then
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/register")
+        mockMvc.perform(MockMvcRequestBuilders.post(REGISTER_URL)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content("{\"username\":\"newuser\", \"password\":\"newpassword\", \"email\":\"newuser@example.com\"}"))
+                                .content(REGISTER_JSON))
                 .andExpect(status().isCreated())
                 .andExpect(content().string(response));
-    }
 
+        verify(authService, times(1)).register(any(RegistrationRequest.class));
+    }
 }

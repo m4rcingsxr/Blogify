@@ -1,10 +1,10 @@
 package com.blogify.controller;
 
-import com.blogify.CustomerTestUtil;
 import com.blogify.entity.Customer;
+import com.blogify.payload.CustomerDto;
 import com.blogify.service.CustomerService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.hamcrest.Matchers;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -16,6 +16,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
+import static com.blogify.CustomerTestUtil.*;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -24,6 +25,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @SpringBootTest
 class CustomerControllerTest {
+
+    private static final String BASE_URL = "/api/customers";
+    private static final long CUSTOMER_ID = 1L;
 
     @MockBean
     private CustomerService customerService;
@@ -34,24 +38,31 @@ class CustomerControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    private Customer customer;
+    private CustomerDto customerDto;
+
+    @BeforeEach
+    void setUp() {
+        customer = generateDummyCustomer();
+        customer.setId(CUSTOMER_ID);
+        customerDto = toDto(customer);
+    }
+
     @Test
     @WithMockUser(roles = "ADMIN")
     void whenListAll_thenReturnListOfCustomers() throws Exception {
-        Customer customer1 = CustomerTestUtil.generateDummyCustomer();
-        Customer customer2 = CustomerTestUtil.generateDummyCustomer();
-
-        customer1.setId(1L);
+        Customer customer2 = generateDummyCustomer();
         customer2.setId(2L);
 
-        when(customerService.findAll()).thenReturn(List.of(customer1, customer2));
+        when(customerService.findAll()).thenReturn(List.of(customerDto, toDto(customer2)));
 
-        mockMvc.perform(get("/api/customers"))
+        mockMvc.perform(get(BASE_URL))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].email", equalTo(customer1.getEmail())))
-                .andExpect(jsonPath("$[0].firstName", equalTo(customer1.getFirstName())))
-                .andExpect(jsonPath("$[0].lastName", equalTo(customer1.getLastName())))
-                .andExpect(jsonPath("$[0].password", equalTo(customer1.getPassword())));
+                .andExpect(jsonPath("$[0].email", equalTo(customer.getEmail())))
+                .andExpect(jsonPath("$[0].firstName", equalTo(customer.getFirstName())))
+                .andExpect(jsonPath("$[0].lastName", equalTo(customer.getLastName())))
+                .andExpect(jsonPath("$[0].password", equalTo(customer.getPassword())));
 
         verify(customerService, times(1)).findAll();
     }
@@ -59,26 +70,21 @@ class CustomerControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     void givenCustomerId_whenDeleteCustomer_thenDeleteCustomerIsInvoked() throws Exception {
-        doNothing().when(customerService).deleteCustomer(1L);
+        doNothing().when(customerService).deleteCustomer(CUSTOMER_ID);
 
-        mockMvc.perform(delete("/api/customers/1"))
+        mockMvc.perform(delete(BASE_URL + "/" + CUSTOMER_ID))
                 .andExpect(status().isOk())
                 .andExpect(content().string(""));
 
-        verify(customerService, times(1)).deleteCustomer(1L);
+        verify(customerService, times(1)).deleteCustomer(CUSTOMER_ID);
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
     void givenCustomerId_whenGetById_thenCustomerAndStatus200IsReturned() throws Exception {
-        long customerId = 1;
+        when(customerService.findById(CUSTOMER_ID)).thenReturn(customerDto);
 
-        Customer customer = CustomerTestUtil.generateDummyCustomer();
-        customer.setId(customerId);
-
-        when(customerService.findById(customerId)).thenReturn(customer);
-
-        mockMvc.perform(get("/api/customers/{customerId}", customerId))
+        mockMvc.perform(get(BASE_URL + "/" + CUSTOMER_ID))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.email", equalTo(customer.getEmail())))
@@ -88,22 +94,17 @@ class CustomerControllerTest {
                 .andExpect(jsonPath("$.roles", hasSize(2)))
                 .andExpect(jsonPath("$.roles[*].name", containsInAnyOrder("ROLE_ADMIN", "ROLE_USER")));
 
-        verify(customerService, times(1)).findById(customerId);
+        verify(customerService, times(1)).findById(CUSTOMER_ID);
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
     void givenCustomer_whenUpdateCustomer_thenCustomerUpdated() throws Exception {
-        long customerId = 3;
+        when(customerService.update(CUSTOMER_ID, customerDto)).thenReturn(customerDto);
 
-        Customer customer = CustomerTestUtil.generateDummyCustomer();
-        customer.setId(customerId);
-
-        when(customerService.update(customerId, customer)).thenReturn(customer);
-
-        mockMvc.perform(put("/api/customers/{customerId}", customerId)
+        mockMvc.perform(put(BASE_URL + "/" + CUSTOMER_ID)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(customer)))
+                                .content(objectMapper.writeValueAsString(customerDto)))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.email", equalTo(customer.getEmail())))
@@ -113,6 +114,6 @@ class CustomerControllerTest {
                 .andExpect(jsonPath("$.roles", hasSize(2)))
                 .andExpect(jsonPath("$.roles[*].name", containsInAnyOrder("ROLE_ADMIN", "ROLE_USER")));
 
-        verify(customerService, times(1)).update(customerId, customer);
+        verify(customerService, times(1)).update(CUSTOMER_ID, customerDto);
     }
 }

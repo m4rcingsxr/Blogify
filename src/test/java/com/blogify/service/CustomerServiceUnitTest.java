@@ -3,12 +3,14 @@ package com.blogify.service;
 import com.blogify.CustomerTestUtil;
 import com.blogify.entity.Customer;
 import com.blogify.exception.ApiException;
+import com.blogify.payload.CustomerDto;
 import com.blogify.repository.CustomerRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 
@@ -25,6 +27,9 @@ class CustomerServiceUnitTest {
 
     @Mock
     private PasswordEncoder passwordEncoder;
+
+    @Mock
+    private ModelMapper modelMapper;
 
     @InjectMocks
     private CustomerService customerService;
@@ -58,7 +63,10 @@ class CustomerServiceUnitTest {
         Customer customer = CustomerTestUtil.generateDummyCustomer();
         customer.setId(1L);
 
+        CustomerDto customerDto = CustomerTestUtil.toDto(customer);
+
         when(customerRepository.findById(customer.getId())).thenReturn(Optional.of(customer));
+        when(modelMapper.map(customer, CustomerDto.class)).thenReturn(customerDto);
 
         customerService.findById(customer.getId());
 
@@ -84,11 +92,13 @@ class CustomerServiceUnitTest {
         newCustomer.setId(1L);
 
         String rawPassword = newCustomer.getPassword();
+        CustomerDto customerDto = CustomerTestUtil.toDto(newCustomer);
 
         when(customerRepository.findById(existingCustomer.getId())).thenReturn(Optional.of(existingCustomer));
         when(passwordEncoder.encode(newCustomer.getPassword())).thenReturn("{bcrypt}" +rawPassword);
+        when(modelMapper.map(customerDto, Customer.class)).thenReturn(newCustomer);
 
-        customerService.update(existingCustomer.getId(), newCustomer);
+        customerService.update(existingCustomer.getId(), customerDto);
 
         assertTrue(newCustomer.getPassword().startsWith("{bcrypt}"));
 
@@ -107,9 +117,12 @@ class CustomerServiceUnitTest {
         existingCustomer.setPassword(null);
         newCustomer.setId(1L);
 
-        when(customerRepository.findById(existingCustomer.getId())).thenReturn(Optional.of(existingCustomer));
+        CustomerDto customerDto = CustomerTestUtil.toDto(newCustomer);
 
-        customerService.update(existingCustomer.getId(), newCustomer);
+        when(customerRepository.findById(existingCustomer.getId())).thenReturn(Optional.of(existingCustomer));
+        when(modelMapper.map(customerDto, Customer.class)).thenReturn(newCustomer);
+
+        customerService.update(existingCustomer.getId(), customerDto);
 
         assertEquals(existingCustomer.getPassword(), newCustomer.getPassword());
 
@@ -124,7 +137,7 @@ class CustomerServiceUnitTest {
 
         when(customerRepository.findById(notExistingCustomer.getId())).thenReturn(Optional.empty());
 
-        assertThrows(ApiException.class, () -> customerService.update(notExistingCustomer.getId(), notExistingCustomer));
+        assertThrows(ApiException.class, () -> customerService.update(notExistingCustomer.getId(), CustomerTestUtil.toDto(notExistingCustomer)));
 
         verify(customerRepository, times(1)).findById(notExistingCustomer.getId());
         verifyNoInteractions(passwordEncoder);

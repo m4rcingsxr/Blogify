@@ -19,16 +19,16 @@ import java.util.Set;
 public class Customer extends BaseEntity {
 
     @Column(name = "email", unique = true, nullable = false, length = 255)
-    public String email;
+    private String email;
 
     @Column(name = "password", nullable = false, length = 255)
-    public String password;
+    private String password;
 
     @Column(name = "first_name", nullable = false, length = 255)
-    public String firstName;
+    private String firstName;
 
     @Column(name = "last_name", nullable = false, length = 255)
-    public String lastName;
+    private String lastName;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(

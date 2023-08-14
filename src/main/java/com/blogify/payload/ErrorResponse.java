@@ -2,9 +2,7 @@ package com.blogify.payload;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.ToString;
 
-@ToString
 @AllArgsConstructor
 @Data
 public class ErrorResponse {

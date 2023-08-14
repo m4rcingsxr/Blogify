@@ -1,9 +1,9 @@
 package com.blogify.security;
 
 import com.blogify.CustomerTestUtil;
-import com.blogify.repository.CustomerRepository;
 import com.blogify.entity.Customer;
 import com.blogify.exception.ApiException;
+import com.blogify.repository.CustomerRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

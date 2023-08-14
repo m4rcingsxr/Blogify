@@ -1,10 +1,10 @@
 package com.blogify.service;
 
-import com.blogify.repository.CustomerRepository;
 import com.blogify.entity.Customer;
 import com.blogify.exception.ApiException;
 import com.blogify.payload.LoginRequest;
 import com.blogify.payload.RegistrationRequest;
+import com.blogify.repository.CustomerRepository;
 import com.blogify.security.JwtTokenProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

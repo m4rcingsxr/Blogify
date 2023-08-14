@@ -4,12 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@AllArgsConstructor
-@NoArgsConstructor
-@Data
-public class JWTResponse {
+import java.io.Serializable;
 
-    private String accessToken;
-    private String tokenType = "Bearer";
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
+public abstract class EntityDto implements Serializable {
+
+    private Long id;
 
 }

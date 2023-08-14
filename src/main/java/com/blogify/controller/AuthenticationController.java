@@ -4,6 +4,7 @@ import com.blogify.payload.JWTResponse;
 import com.blogify.payload.LoginRequest;
 import com.blogify.payload.RegistrationRequest;
 import com.blogify.service.CustomerAuthenticationService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +21,7 @@ public class AuthenticationController {
     private final CustomerAuthenticationService authService;
 
     @PostMapping(value = {"/login", "/signin"})
-    public ResponseEntity<JWTResponse> login(@RequestBody LoginRequest loginDto) {
+    public ResponseEntity<JWTResponse> login(@Valid @RequestBody LoginRequest loginDto) {
         String token = authService.login(loginDto);
 
         JWTResponse jwtAuthResponse = new JWTResponse();
@@ -30,7 +31,7 @@ public class AuthenticationController {
     }
 
     @PostMapping(value = {"/register", "/signup"})
-    public ResponseEntity<String> register(@RequestBody RegistrationRequest registerDto) {
+    public ResponseEntity<String> register(@Valid @RequestBody RegistrationRequest registerDto) {
         String response = authService.register(registerDto);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }

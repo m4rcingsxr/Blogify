@@ -3,7 +3,7 @@ package com.blogify.controller;
 import com.blogify.payload.LoginRequest;
 import com.blogify.payload.RegistrationRequest;
 import com.blogify.service.CustomerAuthenticationService;
-import org.junit.jupiter.api.BeforeEach;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -24,11 +25,14 @@ class AuthControllerTest {
     private static final String LOGIN_URL = "/api/auth/login";
     private static final String REGISTER_URL = "/api/auth/register";
     private static final String JWT_TOKEN = "jwt token";
-    private static final String LOGIN_JSON = "{\"username\":\"testuser\", \"password\":\"testpassword\"}";
-    private static final String REGISTER_JSON = "{\"username\":\"newuser\", \"password\":\"newpassword\", \"email\":\"newuser@example.com\"}";
+    private static final String LOGIN_JSON = "{\"email\":\"testuser@gmail.com\", \"password\":\"testpassword\"}";
+    private static final String REGISTER_JSON = "{\"firstName\":\"newuser\",\"lastName\":\"newuser\", \"password\":\"newpassword\", \"email\":\"newuser@example.com\"}";
 
     @MockBean
     private CustomerAuthenticationService authService;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Autowired
     private MockMvc mockMvc;
@@ -62,4 +66,37 @@ class AuthControllerTest {
 
         verify(authService, times(1)).register(any(RegistrationRequest.class));
     }
+
+    @Test
+    void givenInvalidLoginRequest_whenLogin_thenReturnsValidationErrors() throws Exception {
+        LoginRequest invalidLoginRequest = new LoginRequest();
+        invalidLoginRequest.setEmail("invalid-email");
+        invalidLoginRequest.setPassword("");
+
+        mockMvc.perform(post("/api/auth/login")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(invalidLoginRequest)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.email").value("Email must have correct format"))
+                .andExpect(jsonPath("$.password").value("Password cannot be blank"));
+    }
+
+    @Test
+    void givenInvalidRegistrationRequest_whenRegister_thenReturnsValidationErrors() throws Exception {
+        RegistrationRequest invalidRegistrationRequest = new RegistrationRequest();
+        invalidRegistrationRequest.setEmail("invalid-email");
+        invalidRegistrationRequest.setPassword("");
+        invalidRegistrationRequest.setFirstName("");
+        invalidRegistrationRequest.setLastName("");
+
+        mockMvc.perform(post("/api/auth/register")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(invalidRegistrationRequest)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.email").value("Email must have correct format"))
+                .andExpect(jsonPath("$.password").value("Password cannot be blank"))
+                .andExpect(jsonPath("$.firstName").value("First name cannot be blank"))
+                .andExpect(jsonPath("$.lastName").value("Last name cannot be blank"));
+    }
+
 }

@@ -2,6 +2,8 @@ package com.blogify.controller;
 
 import com.blogify.entity.Customer;
 import com.blogify.payload.CustomerDto;
+import com.blogify.payload.LoginRequest;
+import com.blogify.payload.RegistrationRequest;
 import com.blogify.service.CustomerService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,9 +16,11 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.HashSet;
 import java.util.List;
 
-import static com.blogify.CustomerTestUtil.*;
+import static com.blogify.CustomerTestUtil.generateDummyCustomer;
+import static com.blogify.CustomerTestUtil.toDto;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -59,10 +63,10 @@ class CustomerControllerTest {
         mockMvc.perform(get(BASE_URL))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].email", equalTo(customer.getEmail())))
-                .andExpect(jsonPath("$[0].firstName", equalTo(customer.getFirstName())))
-                .andExpect(jsonPath("$[0].lastName", equalTo(customer.getLastName())))
-                .andExpect(jsonPath("$[0].password", equalTo(customer.getPassword())));
+                .andExpect(jsonPath("$[0].email").value(customer.getEmail()))
+                .andExpect(jsonPath("$[0].firstName").value(customer.getFirstName()))
+                .andExpect(jsonPath("$[0].lastName").value(customer.getLastName()))
+                .andExpect(jsonPath("$[0].password").value(customer.getPassword()));
 
         verify(customerService, times(1)).findAll();
     }
@@ -87,10 +91,10 @@ class CustomerControllerTest {
         mockMvc.perform(get(BASE_URL + "/" + CUSTOMER_ID))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.email", equalTo(customer.getEmail())))
-                .andExpect(jsonPath("$.firstName", equalTo(customer.getFirstName())))
-                .andExpect(jsonPath("$.lastName", equalTo(customer.getLastName())))
-                .andExpect(jsonPath("$.password", equalTo(customer.getPassword())))
+                .andExpect(jsonPath("$.email").value(customer.getEmail()))
+                .andExpect(jsonPath("$.firstName").value(customer.getFirstName()))
+                .andExpect(jsonPath("$.lastName").value(customer.getLastName()))
+                .andExpect(jsonPath("$.password").value(customer.getPassword()))
                 .andExpect(jsonPath("$.roles", hasSize(2)))
                 .andExpect(jsonPath("$.roles[*].name", containsInAnyOrder("ROLE_ADMIN", "ROLE_USER")));
 
@@ -107,13 +111,36 @@ class CustomerControllerTest {
                                 .content(objectMapper.writeValueAsString(customerDto)))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.email", equalTo(customer.getEmail())))
-                .andExpect(jsonPath("$.firstName", equalTo(customer.getFirstName())))
-                .andExpect(jsonPath("$.lastName", equalTo(customer.getLastName())))
-                .andExpect(jsonPath("$.password", equalTo(customer.getPassword())))
+                .andExpect(jsonPath("$.email").value(customer.getEmail()))
+                .andExpect(jsonPath("$.firstName").value(customer.getFirstName()))
+                .andExpect(jsonPath("$.lastName").value(customer.getLastName()))
+                .andExpect(jsonPath("$.password").value(customer.getPassword()))
                 .andExpect(jsonPath("$.roles", hasSize(2)))
                 .andExpect(jsonPath("$.roles[*].name", containsInAnyOrder("ROLE_ADMIN", "ROLE_USER")));
 
         verify(customerService, times(1)).update(CUSTOMER_ID, customerDto);
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void givenInvalidCustomer_whenUpdateCustomer_thenReturnsValidationErrors() throws Exception {
+        // Given an invalid CustomerDto
+        CustomerDto invalidCustomerDto = new CustomerDto();
+        invalidCustomerDto.setEmail("invalid-email");
+        invalidCustomerDto.setPassword("");
+        invalidCustomerDto.setFirstName("");
+        invalidCustomerDto.setLastName("");
+        invalidCustomerDto.setRoles(new HashSet<>());
+
+        // When & Then
+        mockMvc.perform(put("/api/customers/{customerId}", 1L)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(invalidCustomerDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.email").value("Email must have correct format"))
+                .andExpect(jsonPath("$.password").value("Password cannot be blank"))
+                .andExpect(jsonPath("$.firstName").value("First name cannot be blank"))
+                .andExpect(jsonPath("$.lastName").value("Last name cannot be blank"))
+                .andExpect(jsonPath("$.roles").value("Roles cannot be empty"));
     }
 }

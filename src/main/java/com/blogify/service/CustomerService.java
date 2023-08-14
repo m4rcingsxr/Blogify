@@ -1,9 +1,9 @@
 package com.blogify.service;
 
+import com.blogify.entity.Customer;
 import com.blogify.exception.ApiException;
 import com.blogify.payload.CustomerDto;
 import com.blogify.repository.CustomerRepository;
-import com.blogify.entity.Customer;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
@@ -11,6 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -29,7 +30,12 @@ public class CustomerService {
         customerRepository.delete(customer);
     }
 
+    // validate email
     public CustomerDto update(Long customerId, CustomerDto customerDto) {
+        validateEmail(customerId, customerDto.getEmail());
+
+        customerDto.setId(customerId);
+
         Customer existingCustomer = findByIdInternal(customerId);
         Customer newCustomer = mapToEntity(customerDto);
 
@@ -40,6 +46,13 @@ public class CustomerService {
         }
 
         return mapToDto(customerRepository.save(newCustomer));
+    }
+
+    private void validateEmail(Long id, String email) {
+        Optional<Customer> customer = customerRepository.findByEmail(email);
+        if (customer.isPresent() && !customer.get().getId().equals(id)) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Email already in use");
+        }
     }
 
     public CustomerDto findById(Long customerId) {

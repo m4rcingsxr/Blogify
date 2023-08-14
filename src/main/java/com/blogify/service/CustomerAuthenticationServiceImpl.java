@@ -1,11 +1,11 @@
 package com.blogify.service;
 
-import com.blogify.repository.CustomerRepository;
 import com.blogify.entity.Customer;
 import com.blogify.entity.Role;
 import com.blogify.exception.ApiException;
 import com.blogify.payload.LoginRequest;
 import com.blogify.payload.RegistrationRequest;
+import com.blogify.repository.CustomerRepository;
 import com.blogify.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

@@ -2,6 +2,7 @@ package com.blogify.controller;
 
 import com.blogify.payload.CustomerDto;
 import com.blogify.service.CustomerService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,7 +40,7 @@ public class CustomerController {
 
     @PutMapping(value = "/{customerId}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<CustomerDto> updateCustomer(@PathVariable Long customerId, @RequestBody CustomerDto customerDto) {
+    public ResponseEntity<CustomerDto> updateCustomer(@PathVariable Long customerId, @Valid @RequestBody CustomerDto customerDto) {
         return ResponseEntity.ok(customerService.update(customerId, customerDto));
     }
 

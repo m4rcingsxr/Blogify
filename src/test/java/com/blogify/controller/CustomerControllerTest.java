@@ -2,8 +2,6 @@ package com.blogify.controller;
 
 import com.blogify.entity.Customer;
 import com.blogify.payload.CustomerDto;
-import com.blogify.payload.LoginRequest;
-import com.blogify.payload.RegistrationRequest;
 import com.blogify.service.CustomerService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -74,13 +72,13 @@ class CustomerControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     void givenCustomerId_whenDeleteCustomer_thenDeleteCustomerIsInvoked() throws Exception {
-        doNothing().when(customerService).deleteCustomer(CUSTOMER_ID);
+        doNothing().when(customerService).deleteById(CUSTOMER_ID);
 
         mockMvc.perform(delete(BASE_URL + "/" + CUSTOMER_ID))
                 .andExpect(status().isOk())
                 .andExpect(content().string(""));
 
-        verify(customerService, times(1)).deleteCustomer(CUSTOMER_ID);
+        verify(customerService, times(1)).deleteById(CUSTOMER_ID);
     }
 
     @Test

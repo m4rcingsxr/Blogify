@@ -33,7 +33,7 @@ public class CustomerController {
     @DeleteMapping("/{customerId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteCustomer(@PathVariable Long customerId) {
-        customerService.deleteCustomer(customerId);
+        customerService.deleteById(customerId);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }

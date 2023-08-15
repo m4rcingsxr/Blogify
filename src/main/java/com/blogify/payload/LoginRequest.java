@@ -17,11 +17,11 @@ public class LoginRequest {
     @NotNull(message = "Email cannot be null")
     @NotBlank(message = "Email cannot be blank")
     @Size(max = 255, message = "Email cannot be longer than 255 characters")
-    String email;
+    private String email;
 
     @NotNull(message = "Password cannot be null")
     @NotBlank(message = "Password cannot be blank")
     @Size(max = 64, message = "Password cannot be longer than 64 characters")
-    String password;
+    private String password;
 
 }

@@ -59,6 +59,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 );
                 break;
 
+            case METHOD_NOT_ALLOWED:
+                errorResponse = new ErrorResponse(HttpStatus.METHOD_NOT_ALLOWED.value(), ex.getMessage(),
+                                                  Instant.now().getEpochSecond()
+                );
+                break;
+
             default:
                 errorResponse = new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(),
                                                   ex.getMessage(), Instant.now().getEpochSecond()

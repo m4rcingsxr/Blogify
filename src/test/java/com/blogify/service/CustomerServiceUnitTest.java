@@ -41,7 +41,7 @@ class CustomerServiceUnitTest {
 
         when(customerRepository.findById(customer.getId())).thenReturn(Optional.of(customer));
 
-        customerService.deleteCustomer(customer.getId());
+        customerService.deleteById(customer.getId());
 
         verify(customerRepository, times(1)).findById(customer.getId());
         verify(customerRepository, times(1)).delete(customer);
@@ -51,7 +51,7 @@ class CustomerServiceUnitTest {
     void givenNotExistingCustomer_whenDeleteCustomer_thenApiExceptionIsThrown() {
         when(customerRepository.findById(anyLong())).thenReturn(Optional.empty());
 
-        assertThrows(ApiException.class, () -> customerService.deleteCustomer(-1L));
+        assertThrows(ApiException.class, () -> customerService.deleteById(-1L));
 
         verify(customerRepository, times(1)).findById(-1L);
         verifyNoMoreInteractions(customerRepository);

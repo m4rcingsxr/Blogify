@@ -15,7 +15,7 @@ import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
-public class CustomerService {
+public class CustomerService implements EntityService<CustomerDto> {
 
     private final CustomerRepository customerRepository;
     private final PasswordEncoder passwordEncoder;
@@ -25,12 +25,11 @@ public class CustomerService {
         return customerRepository.findAll().stream().map(this::mapToDto).toList();
     }
 
-    public void deleteCustomer(Long customerId) {
+    public void deleteById(Long customerId) {
         Customer customer = findByIdInternal(customerId);
         customerRepository.delete(customer);
     }
 
-    // validate email
     public CustomerDto update(Long customerId, CustomerDto customerDto) {
         validateEmail(customerId, customerDto.getEmail());
 
@@ -39,13 +38,21 @@ public class CustomerService {
         Customer existingCustomer = findByIdInternal(customerId);
         Customer newCustomer = mapToEntity(customerDto);
 
-        if(newCustomer.getPassword() != null) {
+        if (newCustomer.getPassword() != null) {
             newCustomer.setPassword(passwordEncoder.encode(newCustomer.getPassword()));
         } else {
             newCustomer.setPassword(existingCustomer.getPassword());
         }
 
         return mapToDto(customerRepository.save(newCustomer));
+    }
+
+    @Override
+    public CustomerDto create(CustomerDto dto) {
+        throw new ApiException(HttpStatus.METHOD_NOT_ALLOWED,
+                               "Create method is not supported for customers. Creating of " +
+                                       "customer can be achieved through Authorization endpoints"
+        );
     }
 
     private void validateEmail(Long id, String email) {

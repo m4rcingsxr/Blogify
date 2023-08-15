@@ -12,4 +12,8 @@ public class ApiException extends RuntimeException {
         super(message);
         this.status = status;
     }
+
+    public static ApiException notFound(String message) {
+        return new ApiException(HttpStatus.NOT_FOUND, message);
+    }
 }

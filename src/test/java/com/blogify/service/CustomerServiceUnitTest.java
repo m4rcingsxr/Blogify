@@ -1,6 +1,6 @@
 package com.blogify.service;
 
-import com.blogify.CustomerTestUtil;
+import com.blogify.util.CustomerTestUtil;
 import com.blogify.entity.Customer;
 import com.blogify.exception.ApiException;
 import com.blogify.payload.CustomerDto;

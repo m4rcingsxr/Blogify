@@ -1,4 +1,4 @@
-package com.blogify;
+package com.blogify.util;
 
 import com.blogify.entity.Customer;
 import com.blogify.entity.Role;

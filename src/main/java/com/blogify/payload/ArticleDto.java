@@ -27,4 +27,6 @@ public class ArticleDto extends EntityDto {
     @NotBlank(message = "Content cannot be blank")
     private String content;
 
+    private Long categoryId;
+
 }

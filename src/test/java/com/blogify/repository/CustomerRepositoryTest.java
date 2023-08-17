@@ -1,6 +1,6 @@
 package com.blogify.repository;
 
-import com.blogify.CustomerTestUtil;
+import com.blogify.util.CustomerTestUtil;
 import com.blogify.entity.Customer;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

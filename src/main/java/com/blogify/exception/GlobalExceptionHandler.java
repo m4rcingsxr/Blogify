@@ -1,6 +1,5 @@
-package com.blogify;
+package com.blogify.exception;
 
-import com.blogify.exception.ApiException;
 import com.blogify.payload.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;

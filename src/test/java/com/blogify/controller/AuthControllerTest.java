@@ -26,7 +26,7 @@ class AuthControllerTest {
     private static final String REGISTER_URL = "/api/auth/register";
     private static final String JWT_TOKEN = "jwt token";
     private static final String LOGIN_JSON = "{\"email\":\"testuser@gmail.com\", \"password\":\"testpassword\"}";
-    private static final String REGISTER_JSON = "{\"firstName\":\"newuser\",\"lastName\":\"newuser\", \"password\":\"newpassword\", \"email\":\"newuser@example.com\"}";
+    private static final String REGISTER_JSON = "{\"firstName\":\"newuser\",\"lastName\":\"abc\", \"password\":\"newpassword\", \"email\":\"newuser@example.com\"}";
 
     @MockBean
     private CustomerAuthenticationService authService;

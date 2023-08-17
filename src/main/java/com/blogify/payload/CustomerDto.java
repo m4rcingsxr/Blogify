@@ -16,7 +16,6 @@ public class CustomerDto extends EntityDto {
     @Size(max = 255, message = "Email cannot be longer than 255 characters")
     private String email;
 
-    @NotBlank(message = "Password cannot be blank")
     @Size(min=8, max = 64, message = "Password must have min 8 characters and cannot be longer than 64 characters")
     private String password;
 

@@ -50,6 +50,7 @@ class ArticleServiceTest {
 
     @Test
     void givenNewArticle_whenCreate_thenArticleIsCreated() {
+
         // Arrange
         when(articleRepository.save(any(Article.class))).thenReturn(article);
         when(modelMapper.map(any(ArticleDto.class), eq(Article.class))).thenReturn(article);
@@ -66,8 +67,9 @@ class ArticleServiceTest {
 
     @Test
     void givenExistingArticleId_whenUpdate_thenArticleIsUpdated() {
+
         // Arrange
-        when(articleRepository.existsById(1L)).thenReturn(true);
+        when(articleRepository.findByTitle(articleDto.getTitle())).thenReturn(Optional.empty());
         when(articleRepository.save(any(Article.class))).thenReturn(article);
         when(modelMapper.map(any(ArticleDto.class), eq(Article.class))).thenReturn(article);
 
@@ -77,20 +79,22 @@ class ArticleServiceTest {
         // Assert
         assertNotNull(updatedArticle);
         assertEquals(1L, updatedArticle.getId());
-        verify(articleRepository, times(1)).existsById(1L);
+        verify(articleRepository, times(1)).findByTitle(articleDto.getTitle());
         verify(articleRepository, times(1)).save(any(Article.class));
         verify(modelMapper, times(1)).map(any(ArticleDto.class), eq(Article.class));
     }
 
     @Test
     void givenNonExistingArticleId_whenUpdate_thenThrowsException() {
+        article.setId(2L);
+
         // Arrange
-        when(articleRepository.existsById(1L)).thenReturn(false);
+        when(articleRepository.findByTitle(articleDto.getTitle())).thenReturn(Optional.of(article));
 
         // Act & Assert
         ApiException exception = assertThrows(ApiException.class, () -> articleService.update(1L, articleDto));
-        assertEquals("Article not found", exception.getMessage());
-        verify(articleRepository, times(1)).existsById(1L);
+        assertEquals("Title already in use", exception.getMessage());
+        verify(articleRepository, times(1)).findByTitle(articleDto.getTitle());
         verify(articleRepository, never()).save(any(Article.class));
     }
 

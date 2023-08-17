@@ -1,12 +1,12 @@
 package com.blogify.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Getter
 @Setter
@@ -16,7 +16,7 @@ import lombok.Setter;
 @Table(name = "articles")
 public class Article extends BaseEntity {
 
-    @Column(name = "title", nullable = false, length = 64)
+    @Column(name = "title", nullable = false, length = 64, unique = true)
     private String title;
 
     @Column(name = "description", nullable = false, length = 255)
@@ -24,5 +24,10 @@ public class Article extends BaseEntity {
 
     @Column(name = "content", nullable = false, columnDefinition = "CLOB")
     private String content;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    @OnDelete(action = OnDeleteAction.SET_NULL)
+    private Category category;
 
 }

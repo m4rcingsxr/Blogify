@@ -6,6 +6,7 @@ import com.blogify.payload.ArticleDto;
 import com.blogify.repository.ArticleRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,6 +21,8 @@ public class ArticleService implements EntityService<ArticleDto> {
 
     @Override
     public ArticleDto create(ArticleDto newArticle) {
+        validateArticle(null, newArticle.getTitle());
+
         Article savedArticle = articleRepository.save(mapToEntity(newArticle));
         newArticle.setId(savedArticle.getId());
 
@@ -28,7 +31,7 @@ public class ArticleService implements EntityService<ArticleDto> {
 
     @Override
     public ArticleDto update(Long id, ArticleDto newArticle) {
-        validateArticleExist(id);
+        validateArticle(id, newArticle.getTitle());
 
         newArticle.setId(id);
         articleRepository.save(mapToEntity(newArticle));
@@ -36,10 +39,12 @@ public class ArticleService implements EntityService<ArticleDto> {
         return newArticle;
     }
 
-    private void validateArticleExist(Long id) {
-        if (!articleRepository.existsById(id)) {
-            throw generateNotFound();
-        }
+    private void validateArticle(Long id, String title) {
+        articleRepository.findByTitle(title).ifPresent(article -> {
+           if(!article.getId().equals(id)) {
+               throw new ApiException(HttpStatus.BAD_REQUEST, "Title already in use");
+           }
+        });
     }
 
     @Override

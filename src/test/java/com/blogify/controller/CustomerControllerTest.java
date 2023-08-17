@@ -17,8 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.HashSet;
 import java.util.List;
 
-import static com.blogify.CustomerTestUtil.generateDummyCustomer;
-import static com.blogify.CustomerTestUtil.toDto;
+import static com.blogify.util.CustomerTestUtil.*;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -136,7 +135,7 @@ class CustomerControllerTest {
                                 .content(objectMapper.writeValueAsString(invalidCustomerDto)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.email").value("Email must have correct format"))
-                .andExpect(jsonPath("$.password").value("Password cannot be blank"))
+                .andExpect(jsonPath("$.password").value("Password must have min 8 characters and cannot be longer than 64 characters"))
                 .andExpect(jsonPath("$.firstName").value("First name cannot be blank"))
                 .andExpect(jsonPath("$.lastName").value("Last name cannot be blank"))
                 .andExpect(jsonPath("$.roles").value("Roles cannot be empty"));

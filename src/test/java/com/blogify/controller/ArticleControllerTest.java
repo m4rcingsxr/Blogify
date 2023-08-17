@@ -92,7 +92,7 @@ class ArticleControllerTest {
         mockMvc.perform(post(BASE_URL)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(articleDto)))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.title").value(articleDto.getTitle()))
                 .andExpect(jsonPath("$.description").value(articleDto.getDescription()))

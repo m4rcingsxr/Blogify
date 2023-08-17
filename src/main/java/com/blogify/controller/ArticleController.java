@@ -19,31 +19,31 @@ public class ArticleController {
     private final ArticleService articleService;
 
     @GetMapping
-    public ResponseEntity<List<ArticleDto>> getAllArticles() {
+    public ResponseEntity<List<ArticleDto>> findAll() {
         return ResponseEntity.ok(articleService.findAll());
     }
 
     @GetMapping("/{articleId}")
-    public ResponseEntity<ArticleDto> getArticle(@PathVariable Long articleId) {
+    public ResponseEntity<ArticleDto> findById(@PathVariable Long articleId) {
         return ResponseEntity.ok(articleService.findById(articleId));
     }
 
     @PostMapping
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_EDITOR')")
-    public ResponseEntity<ArticleDto> createArticle(@Valid @RequestBody ArticleDto articleDto) {
-        return ResponseEntity.ok(articleService.create(articleDto));
+    public ResponseEntity<ArticleDto> create(@Valid @RequestBody ArticleDto articleDto) {
+        return new ResponseEntity<>(articleService.create(articleDto), HttpStatus.CREATED);
     }
 
 
     @PutMapping("/{articleId}")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_EDITOR')")
-    public ResponseEntity<ArticleDto> updateArticle(@PathVariable Long articleId,
+    public ResponseEntity<ArticleDto> update(@PathVariable Long articleId,
                                                     @Valid @RequestBody ArticleDto articleDto) {
         return ResponseEntity.ok(articleService.update(articleId, articleDto));
     }
 
     @DeleteMapping("{customerId}")
-    public ResponseEntity<Void> deleteArticle(@PathVariable Long customerId) {
+    public ResponseEntity<Void> deleteById(@PathVariable Long customerId) {
         articleService.deleteById(customerId);
         return new ResponseEntity<>(HttpStatus.OK);
     }

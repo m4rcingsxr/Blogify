@@ -26,7 +26,7 @@ public class RegistrationRequest {
 
     @NotNull(message = "Last name cannot be null")
     @NotBlank(message = "Last name cannot be blank")
-    @Size(min = 8, max = 255, message = "Last name cannot be longer than 255 characters")
+    @Size(max = 255, message = "Last name cannot be longer than 255 characters")
     private String lastName;
 
 

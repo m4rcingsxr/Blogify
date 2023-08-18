@@ -1,12 +1,14 @@
 package com.blogify.repository;
 
 import com.blogify.entity.Article;
+import com.blogify.entity.Comment;
+import com.blogify.util.CommentTestUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.jdbc.Sql;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -17,6 +19,9 @@ class ArticleRepositoryTest {
 
     @Autowired
     private ArticleRepository articleRepository;
+
+    @Autowired
+    private CommentRepository commentRepository;
 
     @Test
     void givenArticles_whenFindById_thenReturnArticle() {
@@ -29,6 +34,7 @@ class ArticleRepositoryTest {
         // Then
         assertTrue(foundArticle.isPresent());
         assertEquals("Introduction to Java", foundArticle.get().getTitle());
+        assertFalse(foundArticle.get().getComments().isEmpty());
     }
 
     @Test
@@ -84,10 +90,57 @@ class ArticleRepositoryTest {
     @Test
     void givenArticles_whenFindAll_thenReturnAllArticles() {
         // When
-        Iterable<Article> allArticles = articleRepository.findAll();
+        List<Article> allArticles = articleRepository.findAll();
 
         // Then
         assertNotNull(allArticles);
-        assertEquals(10, ((Collection<?>) allArticles).size());
+        assertEquals(10, allArticles.size());
+    }
+
+    @Test // cascade persist
+    void givenArticleWithComments_whenSave_thenArticleAndCommentsAreSaved() {
+        // Given
+        Article article = new Article();
+        article.setTitle("Article with Comments");
+        article.setDescription("This article has comments");
+        article.setContent("Content of the article with comments");
+
+        Comment comment1 = CommentTestUtil.generateDummyComment("Barack Obama", "Great article!");
+        Comment comment2 = CommentTestUtil.generateDummyComment("Donald Trump", "Very informative.");
+
+        article.addComment(comment1);
+        article.addComment(comment2);
+
+        // When
+        Article savedArticle = articleRepository.save(article);
+
+        // Then
+        assertNotNull(savedArticle);
+        assertNotNull(savedArticle.getId());
+        assertEquals("Article with Comments", savedArticle.getTitle());
+        assertEquals(2, savedArticle.getComments().size());
+    }
+
+    @Test // cascade delete
+    void givenArticleWithComments_whenDelete_thenArticleAndCommentsAreDeleted() {
+
+        // Given
+        Long articleId = 1L;
+        Optional<Article> optionalArticle = articleRepository.findById(articleId);
+        assertTrue(optionalArticle.isPresent());
+
+        Article article = optionalArticle.get();
+        assertFalse(article.getComments().isEmpty());
+        List<Long> commentsIds = article.getComments().stream().map(Comment::getId).toList();
+
+        // When
+        articleRepository.delete(article);
+        Optional<Article> deletedArticle = articleRepository.findById(articleId);
+
+        // Then
+        assertFalse(deletedArticle.isPresent());
+
+        List<Comment> comments = commentRepository.findAllById(commentsIds);
+        assertTrue(comments.isEmpty());
     }
 }

@@ -69,6 +69,7 @@ class ArticleServiceTest {
     void givenExistingArticleId_whenUpdate_thenArticleIsUpdated() {
 
         // Arrange
+        when(articleRepository.existsById(articleDto.getId())).thenReturn(true);
         when(articleRepository.findByTitle(articleDto.getTitle())).thenReturn(Optional.empty());
         when(articleRepository.save(any(Article.class))).thenReturn(article);
         when(modelMapper.map(any(ArticleDto.class), eq(Article.class))).thenReturn(article);
@@ -80,6 +81,7 @@ class ArticleServiceTest {
         assertNotNull(updatedArticle);
         assertEquals(1L, updatedArticle.getId());
         verify(articleRepository, times(1)).findByTitle(articleDto.getTitle());
+        verify(articleRepository, times(1)).existsById(articleDto.getId());
         verify(articleRepository, times(1)).save(any(Article.class));
         verify(modelMapper, times(1)).map(any(ArticleDto.class), eq(Article.class));
     }

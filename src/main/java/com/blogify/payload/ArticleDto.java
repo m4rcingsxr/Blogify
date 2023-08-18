@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.io.Serializable;
+import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
@@ -28,5 +29,7 @@ public class ArticleDto extends EntityDto {
     private String content;
 
     private Long categoryId;
+
+    private List<CommentDto> comments;
 
 }

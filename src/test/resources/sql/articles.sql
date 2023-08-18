@@ -28,5 +28,35 @@ VALUES (9, 'Unit Testing with JUnit', 'Writing unit tests with JUnit', 'JUnit is
 INSERT INTO articles (id, title, description, content)
 VALUES (10, 'Effective Git', 'Tips and tricks for using Git effectively', 'Git is a distributed version-control system for tracking changes in source code during software development.');
 
+INSERT INTO comments (id, full_name, content, article_id)
+VALUES (1,'John Doe', 'Great introduction to Java!', 1);
+
+INSERT INTO comments (id, full_name, content, article_id)
+VALUES (2,'Jane Smith', 'Very helpful overview of Spring Boot.', 2);
+
+INSERT INTO comments (id, full_name, content, article_id)
+VALUES (3,'Alice Johnson', 'Hibernate ORM explained well.', 3);
+
+INSERT INTO comments (id, full_name, content, article_id)
+VALUES (4,'Bob Brown', 'RESTful Web Services are the future!', 4);
+
+INSERT INTO comments (id, full_name, content, article_id)
+VALUES (5,'Charlie Davis', 'Microservices Architecture demystified.', 5);
+
+INSERT INTO comments (id, full_name, content, article_id)
+VALUES (6,'Eve Evans', 'Docker is indeed powerful.', 6);
+
+INSERT INTO comments (id, full_name, content, article_id)
+VALUES (7,'Frank Green', 'Kubernetes is essential for modern dev.', 7);
+
+INSERT INTO comments (id, full_name, content, article_id)
+VALUES (8,'Grace Hall', 'Continuous Integration is a must-know.', 8);
+
+INSERT INTO comments (id, full_name, content, article_id)
+VALUES (9,'Henry Young', 'JUnit makes unit testing easier.', 9);
+
+INSERT INTO comments (id, full_name, content, article_id)
+VALUES (10,'Ivy King', 'Git tips are very useful, thanks!', 10);
 
 ALTER TABLE articles ALTER COLUMN id RESTART WITH 11;
+ALTER TABLE comments ALTER COLUMN id RESTART WITH 11;

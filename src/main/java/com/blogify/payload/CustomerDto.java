@@ -21,12 +21,12 @@ public class CustomerDto extends EntityDto {
 
     @NotNull(message = "First name cannot be null")
     @NotBlank(message = "First name cannot be blank")
-    @Size(max = 255, message = "First name cannot be longer than 255 characters")
+    @Size(max = 64, message = "First name cannot be longer than 64 characters")
     private String firstName;
 
     @NotNull(message = "Last name cannot be null")
     @NotBlank(message = "Last name cannot be blank")
-    @Size(max = 255, message = "Last name cannot be longer than 255 characters")
+    @Size(max = 64, message = "Last name cannot be longer than 64 characters")
     private String lastName;
 
     @NotEmpty(message = "Roles cannot be empty")

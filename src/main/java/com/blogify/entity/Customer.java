@@ -48,6 +48,11 @@ public class Customer extends BaseEntity {
         this.roles = roles;
     }
 
+    @Transient
+    public String getFullName() {
+        return firstName + " " + lastName;
+    }
+
     @Override
     public final boolean equals(Object o) {
         if (this == o) return true;

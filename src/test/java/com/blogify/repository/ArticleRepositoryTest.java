@@ -2,7 +2,7 @@ package com.blogify.repository;
 
 import com.blogify.entity.Article;
 import com.blogify.entity.Comment;
-import com.blogify.util.CommentTestUtil;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -11,6 +11,7 @@ import org.springframework.test.context.jdbc.Sql;
 import java.util.List;
 import java.util.Optional;
 
+import static com.blogify.util.CommentTestUtil.generateDummyComment;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
@@ -105,8 +106,8 @@ class ArticleRepositoryTest {
         article.setDescription("This article has comments");
         article.setContent("Content of the article with comments");
 
-        Comment comment1 = CommentTestUtil.generateDummyComment("Barack Obama", "Great article!");
-        Comment comment2 = CommentTestUtil.generateDummyComment("Donald Trump", "Very informative.");
+        Comment comment1 = generateDummyComment("Barack Obama", "Great article!");
+        Comment comment2 = generateDummyComment("Donald Trump", "Very informative.");
 
         article.addComment(comment1);
         article.addComment(comment2);

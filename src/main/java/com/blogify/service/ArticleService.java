@@ -23,9 +23,7 @@ public class ArticleService implements EntityService<ArticleDto> {
     @Override
     public ArticleDto create(ArticleDto newArticle) {
         validateArticle(null, newArticle.getTitle());
-
-        Article savedArticle = articleRepository.save(mapToEntity(newArticle));
-        newArticle.setId(savedArticle.getId());
+        save(newArticle);
 
         return newArticle;
     }
@@ -33,11 +31,14 @@ public class ArticleService implements EntityService<ArticleDto> {
     @Override
     public ArticleDto update(Long id, ArticleDto newArticle) {
         validateArticle(id, newArticle.getTitle());
-
-        articleRepository.save(mapToEntity(newArticle));
-        newArticle.setId(id);
+        save(newArticle);
 
         return newArticle;
+    }
+
+    private void save(ArticleDto newArticle) {
+        Article savedArticle = articleRepository.save(mapToEntity(newArticle));
+        newArticle.setId(savedArticle.getId());
     }
 
     private void validateArticle(Long id, String title) {

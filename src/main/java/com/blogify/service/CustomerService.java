@@ -67,6 +67,10 @@ public class CustomerService implements EntityService<CustomerDto> {
         return mapToDto(customer);
     }
 
+    public Customer findByEmail(String email) {
+        return customerRepository.findByEmail(email).orElseThrow(this::generateCustomerNotFound);
+    }
+
     private ApiException generateCustomerNotFound() {
         return new ApiException(HttpStatus.NOT_FOUND, "Customer not found");
     }

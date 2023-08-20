@@ -14,12 +14,14 @@ import java.io.Serializable;
 @Data
 public class CommentDto extends EntityDto {
 
-    @NotNull
+    @NotNull(message = "Content cannot be null")
+    @NotNull(message = "Content cannot be blank")
     @Size(max = 500, message = "Content cannot exceed 500 characters.")
     private String content;
 
     @NotNull(message = "Article id is required")
-    @NotBlank(message = "Article id cannot be blank")
     private Long articleId;
+
+    private String fullName;
 
 }

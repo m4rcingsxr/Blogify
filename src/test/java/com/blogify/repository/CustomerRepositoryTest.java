@@ -1,15 +1,19 @@
 package com.blogify.repository;
 
-import com.blogify.util.CustomerTestUtil;
 import com.blogify.entity.Customer;
+import com.blogify.util.CustomerTestUtil;
+import com.blogify.util.TestUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.context.jdbc.Sql;
 
-import java.util.List;
 import java.util.Optional;
 
+import static com.blogify.util.TestUtil.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
@@ -22,11 +26,52 @@ class CustomerRepositoryTest {
     private CustomerRepository customerRepository;
 
     @Test
+    void givenMultipleSortOrders_whenFindAll_thenShouldReturnSortedPageOfCustomers() {
+        Sort a = getSortByMultipleFields(Sort.Direction.ASC, "firstName", "lastName");
+        Sort b = getSort("email", Sort.Direction.DESC);
+        Sort sort = getJoinedSort(a, b);
+
+        PageRequest pageRequest = getPageRequest(0, sort);
+
+        Page<Customer> customers = customerRepository.findAll(pageRequest);
+
+        assertNotNull(customers);
+        assertFalse(customers.getContent().isEmpty());
+        assertEquals(10, customers.getTotalElements());
+        assertEquals(2, customers.getTotalPages());
+        assertTrue(TestUtil.isPageSortedCorrectly(customers, sort));
+    }
+
+    @Test
+     void givenNoOrders_whenFindAll_thenShouldReturnUnsortedPageOfCustomers() {
+        PageRequest pageRequest = getPageRequest(0, Sort.unsorted());
+
+        Page<Customer> customers = customerRepository.findAll(pageRequest);
+
+        assertNotNull(customers);
+        assertFalse(customers.getContent().isEmpty());
+        assertEquals(10, customers.getTotalElements());
+        assertEquals(2, customers.getTotalPages());
+    }
+
+    @Test
+    void givenExceedingPageNumber_whenFindAll_thenShouldReturnEmptyContent() {
+        PageRequest pageRequest = getPageRequest(9, Sort.unsorted());
+
+        Page<Customer> customers = customerRepository.findAll(pageRequest);
+
+        assertNotNull(customers);
+        assertTrue(customers.getContent().isEmpty());
+        assertEquals(10, customers.getTotalElements());
+        assertEquals(2, customers.getTotalPages());
+    }
+
+    @Test
     void givenValidCustomer_whenSaveCustomer_thenCustomerSaved() {
         int expectedRoles = 2;
 
         Customer customer = CustomerTestUtil.generateDummyCustomer();
-                                                            
+
         Customer savedCustomer = customerRepository.save(customer);
 
         assertNotNull(savedCustomer);
@@ -35,12 +80,11 @@ class CustomerRepositoryTest {
     }
 
     @Test
-    void givenNotExisting_whenFindByEmail_thenCustomerFound() {
+    void givenExistingEmail_whenFindByEmail_thenCustomerIsPresent() {
 
-        Optional<Customer> customer = customerRepository.findByEmail("john.doe@example.com");
+        Optional<Customer> customer = customerRepository.findByEmail("adam.adams@example.com");
 
         assertTrue(customer.isPresent());
-        assertEquals("john.doe@example.com", customer.get().getEmail());
     }
 
     @Test
@@ -49,15 +93,6 @@ class CustomerRepositoryTest {
         Optional<Customer> customer = customerRepository.findByEmail("not.exisiting@example.com");
 
         assertTrue(customer.isEmpty());
-    }
-
-    @Test
-    void whenFindAll_thenShouldReturnAllCustomers() {
-        int expectedSize = 4;
-
-        List<Customer> customers = customerRepository.findAll();
-
-        assertEquals(expectedSize, customers.size());
     }
 
     @Test
@@ -72,7 +107,7 @@ class CustomerRepositoryTest {
 
     @Test
     void givenNotExistingCustomerId_whenFindById_thenCustomerFound() {
-        long customerId = 5L;
+        long customerId = -1L;
 
         Optional<Customer> customer = customerRepository.findById(customerId);
 

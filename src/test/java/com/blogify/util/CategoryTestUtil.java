@@ -9,16 +9,23 @@ public class CategoryTestUtil {
 
     public static Category generateDummyCategory() {
         Category category = new Category();
+        category.setId(1L);
         category.setName("Dummy Category");
         category.setArticles(Collections.emptyList());
         return category;
     }
 
-    public static CategoryDto toDto(Category category) {
-        CategoryDto dto = new CategoryDto();
-        dto.setId(category.getId());
-        dto.setName(category.getName());
-        dto.setArticles(Collections.emptyList());
-        return dto;
+    public static CategoryDto generateDummyCategoryDto() {
+        return toDto(generateDummyCategory());
     }
+
+    public static CategoryDto toDto(Category category) {
+        return TestUtil.map(CategoryDto.class, category);
+    }
+
+    public static Category toEntity(CategoryDto category) {
+        return TestUtil.map(Category.class, category);
+    }
+
+
 }

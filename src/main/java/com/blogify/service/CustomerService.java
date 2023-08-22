@@ -3,33 +3,49 @@ package com.blogify.service;
 import com.blogify.entity.Customer;
 import com.blogify.exception.ApiException;
 import com.blogify.payload.CustomerDto;
+import com.blogify.payload.ResponsePage;
 import com.blogify.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
 public class CustomerService implements EntityService<CustomerDto> {
 
+    private static final int PAGE_SIZE = 10;
+
     private final CustomerRepository customerRepository;
     private final PasswordEncoder passwordEncoder;
     private final ModelMapper modelMapper;
 
-    public List<CustomerDto> findAll() {
-        return customerRepository.findAll().stream().map(this::mapToDto).toList();
+    @Override
+    public ResponsePage<CustomerDto> findAll(Integer pageNum, Sort sort) {
+        Page<Customer> page = customerRepository.findAll(PageRequest.of(pageNum, PAGE_SIZE, sort));
+
+        return ResponsePage.<CustomerDto>builder()
+                .page(pageNum)
+                .pageSize(PAGE_SIZE)
+                .totalElements(page.getTotalElements())
+                .totalPages(page.getTotalPages())
+                .content(page.getContent().stream().map(this::mapToDto).toList())
+                .build();
     }
 
+    @Override
     public void deleteById(Long customerId) {
         Customer customer = findByIdInternal(customerId);
         customerRepository.delete(customer);
     }
 
+    @Override
     public CustomerDto update(Long customerId, CustomerDto customerDto) {
         validateEmail(customerId, customerDto.getEmail());
 
@@ -62,6 +78,7 @@ public class CustomerService implements EntityService<CustomerDto> {
         }
     }
 
+    @Override
     public CustomerDto findById(Long customerId) {
         Customer customer = findByIdInternal(customerId);
         return mapToDto(customer);

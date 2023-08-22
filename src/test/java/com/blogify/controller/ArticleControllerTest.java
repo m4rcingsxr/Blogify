@@ -1,6 +1,7 @@
 package com.blogify.controller;
 
 import com.blogify.payload.ArticleDto;
+import com.blogify.payload.ResponsePage;
 import com.blogify.service.ArticleService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -49,7 +51,7 @@ class ArticleControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
+    @WithMockUser
     void whenListAll_thenReturnListOfArticles() throws Exception {
         ArticleDto articleDto2 = new ArticleDto();
         articleDto2.setId(2L);
@@ -57,16 +59,47 @@ class ArticleControllerTest {
         articleDto2.setDescription("Test Description 2");
         articleDto2.setContent("Test Content 2");
 
-        when(articleService.findAll()).thenReturn(List.of(articleDto, articleDto2));
+        ResponsePage<ArticleDto> responsePage = new ResponsePage<>();
+        responsePage.setContent(List.of(articleDto, articleDto2));
+        responsePage.setPage(0);
+        responsePage.setPageSize(2);
+        responsePage.setTotalElements(2L);
+        responsePage.setTotalPages(1);
+
+        when(articleService.findAll(anyInt(), any(Sort.class))).thenReturn(responsePage);
 
         mockMvc.perform(get(BASE_URL))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].title").value(articleDto.getTitle()))
-                .andExpect(jsonPath("$[0].description").value(articleDto.getDescription()))
-                .andExpect(jsonPath("$[0].content").value(articleDto.getContent()));
+                .andExpect(jsonPath("$.content", hasSize(2)))
+                .andExpect(jsonPath("$.content[0].title").value(articleDto.getTitle()))
+                .andExpect(jsonPath("$.content[0].description").value(articleDto.getDescription()))
+                .andExpect(jsonPath("$.content[0].content").value(articleDto.getContent()));
 
-        verify(articleService, times(1)).findAll();
+        verify(articleService, times(1)).findAll(anyInt(), any(Sort.class));
+    }
+
+    @Test
+    @WithMockUser
+    void whenListAllWithPagination_thenReturnPaginatedListOfArticles() throws Exception {
+        ResponsePage<ArticleDto> responsePage = new ResponsePage<>();
+        responsePage.setContent(List.of(articleDto));
+        responsePage.setPage(1);
+        responsePage.setPageSize(1);
+        responsePage.setTotalElements(2L);
+        responsePage.setTotalPages(2);
+
+        when(articleService.findAll(anyInt(), any(Sort.class))).thenReturn(responsePage);
+
+        mockMvc.perform(get(BASE_URL).param("page", "1").param("size", "1"))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.content", hasSize(1)))
+                .andExpect(jsonPath("$.content[0].title").value(articleDto.getTitle()))
+                .andExpect(jsonPath("$.page").value(1))
+                .andExpect(jsonPath("$.pageSize").value(1))
+                .andExpect(jsonPath("$.totalElements").value(2))
+                .andExpect(jsonPath("$.totalPages").value(2));
+
+        verify(articleService, times(1)).findAll(anyInt(), any(Sort.class));
     }
 
     @Test

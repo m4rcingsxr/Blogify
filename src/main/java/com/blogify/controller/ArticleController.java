@@ -1,15 +1,17 @@
 package com.blogify.controller;
 
+import com.blogify.entity.Article;
 import com.blogify.payload.ArticleDto;
+import com.blogify.payload.ResponsePage;
 import com.blogify.service.ArticleService;
+import com.blogify.util.PageUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -19,8 +21,12 @@ public class ArticleController {
     private final ArticleService articleService;
 
     @GetMapping
-    public ResponseEntity<List<ArticleDto>> findAll() {
-        return ResponseEntity.ok(articleService.findAll());
+    public ResponseEntity<ResponsePage<ArticleDto>> findAll(
+            @RequestParam(value = "page", defaultValue = "0") Integer page,
+            @RequestParam(value = "sort", required = false) String[] sort
+    ) {
+        Sort sortOrder = PageUtil.parseSort(sort, Article.class);
+        return ResponseEntity.ok(articleService.findAll(page, sortOrder));
     }
 
     @GetMapping("/{articleId}")
@@ -38,7 +44,7 @@ public class ArticleController {
     @PutMapping("/{articleId}")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_EDITOR')")
     public ResponseEntity<ArticleDto> update(@PathVariable Long articleId,
-                                                    @Valid @RequestBody ArticleDto articleDto) {
+                                             @Valid @RequestBody ArticleDto articleDto) {
         return ResponseEntity.ok(articleService.update(articleId, articleDto));
     }
 

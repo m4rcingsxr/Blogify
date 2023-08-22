@@ -4,8 +4,8 @@ import com.blogify.entity.Customer;
 import com.blogify.entity.Role;
 import com.blogify.payload.CustomerDto;
 import lombok.experimental.UtilityClass;
-import org.modelmapper.ModelMapper;
 
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
@@ -13,18 +13,24 @@ import java.util.Set;
 public class CustomerTestUtil {
 
     private static final Random random = new Random();
-    private static final ModelMapper modelMapper = new ModelMapper();
-
-    public Customer toEntity(CustomerDto customerDto) {
-        return modelMapper.map(customerDto, Customer.class);
-    }
-
-    public CustomerDto toDto(Customer customer) {
-        return modelMapper.map(customer, CustomerDto.class);
-    }
 
     public static Customer generateDummyCustomer() {
-        return new Customer(null, "john" + random.nextInt() + "@gmail.com", "plain123", "Doe", "abc", Set.of(generateAdminRole(), generateUserRole()));
+        Customer customer = new Customer();
+        customer.setId(1L);
+        customer.setFirstName("John");
+        customer.setLastName("Doe");
+        customer.setEmail("john@doe.com");
+        customer.setPassword("password");
+        customer.setRoles(Set.of(generateUserRole(), generateAdminRole()));
+        return customer;
+    }
+
+    public static Customer toEntity(CustomerDto customerDto) {
+        return TestUtil.map(Customer.class, customerDto);
+    }
+
+    public static CustomerDto toDto(Customer customer) {
+        return TestUtil.map(CustomerDto.class, customer);
     }
 
     public static CustomerDto generateCustomerDto() {

@@ -1,6 +1,7 @@
 package com.blogify.service;
 
-import java.util.List;
+import com.blogify.payload.ResponsePage;
+import org.springframework.data.domain.Sort;
 
 public interface EntityService<R> {
 
@@ -8,7 +9,7 @@ public interface EntityService<R> {
 
     R update(Long id, R dto);
 
-    List<R> findAll();
+    ResponsePage<R> findAll(Integer page, Sort sort);
 
     R findById(Long id);
 

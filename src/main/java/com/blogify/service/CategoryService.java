@@ -3,17 +3,21 @@ package com.blogify.service;
 import com.blogify.entity.Category;
 import com.blogify.exception.ApiException;
 import com.blogify.payload.CategoryDto;
+import com.blogify.payload.ResponsePage;
 import com.blogify.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @RequiredArgsConstructor
 @Service
 public class CategoryService implements EntityService<CategoryDto> {
+
+    private static final int PAGE_SIZE = 10;
 
     private final CategoryRepository categoryRepository;
     private final ModelMapper modelMapper;
@@ -45,8 +49,15 @@ public class CategoryService implements EntityService<CategoryDto> {
     }
 
     @Override
-    public List<CategoryDto> findAll() {
-        return categoryRepository.findAll().stream().map(this::mapToDto).toList();
+    public ResponsePage<CategoryDto> findAll(Integer pageNum, Sort sort) {
+        Page<Category> page = categoryRepository.findAll(PageRequest.of(pageNum, PAGE_SIZE, sort));
+
+        return ResponsePage.<CategoryDto>builder()
+                .pageSize(PAGE_SIZE)
+                .totalElements(page.getTotalElements())
+                .totalPages(page.getTotalPages())
+                .content(page.getContent().stream().map(this::mapToDto).toList())
+                .build();
     }
 
     @Override

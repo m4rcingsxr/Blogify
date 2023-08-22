@@ -3,6 +3,7 @@ package com.blogify.controller;
 
 import com.blogify.entity.Customer;
 import com.blogify.payload.CommentDto;
+import com.blogify.payload.ResponsePage;
 import com.blogify.service.CommentService;
 import com.blogify.service.CustomerService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -61,15 +63,76 @@ class CommentControllerTest {
     void whenFindAll_thenReturnListOfComments() throws Exception {
         CommentDto commentDto2 = generateDummyCommentDto();
 
-        when(commentService.findAll()).thenReturn(List.of(commentDto, commentDto2));
+        ResponsePage<CommentDto> responsePage = new ResponsePage<>();
+        responsePage.setContent(List.of(commentDto, commentDto2));
+        responsePage.setPage(0);
+        responsePage.setPageSize(2);
+        responsePage.setTotalElements(2L);
+        responsePage.setTotalPages(1);
+
+        when(commentService.findAll(anyInt(), any(Sort.class))).thenReturn(responsePage);
 
         mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].fullName").value(commentDto.getFullName()))
-                .andExpect(jsonPath("$[0].content").value(commentDto.getContent()));
+                .andExpect(jsonPath("$.content", hasSize(2)))
+                .andExpect(jsonPath("$.content[0].fullName").value(commentDto.getFullName()))
+                .andExpect(jsonPath("$.content[0].content").value(commentDto.getContent()))
+                .andExpect(jsonPath("$.content[1].fullName").value(commentDto2.getFullName()))
+                .andExpect(jsonPath("$.content[1].content").value(commentDto2.getContent()));
 
-        verify(commentService, times(1)).findAll();
+        verify(commentService, times(1)).findAll(anyInt(), any(Sort.class));
+    }
+
+    @Test
+    @WithMockUser
+    void whenFindAllWithPagination_thenReturnPaginatedListOfComments() throws Exception {
+        ResponsePage<CommentDto> responsePage = new ResponsePage<>();
+        responsePage.setContent(List.of(commentDto));
+        responsePage.setPage(1);
+        responsePage.setPageSize(1);
+        responsePage.setTotalElements(2L);
+        responsePage.setTotalPages(2);
+
+        when(commentService.findAll(anyInt(), any(Sort.class))).thenReturn(responsePage);
+
+        mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL).param("page", "1").param("size", "1"))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.content", hasSize(1)))
+                .andExpect(jsonPath("$.content[0].fullName").value(commentDto.getFullName()))
+                .andExpect(jsonPath("$.page").value(1))
+                .andExpect(jsonPath("$.pageSize").value(1))
+                .andExpect(jsonPath("$.totalElements").value(2))
+                .andExpect(jsonPath("$.totalPages").value(2));
+
+        verify(commentService, times(1)).findAll(anyInt(), any(Sort.class));
+    }
+
+    @Test
+    @WithMockUser
+    void whenFindAllWithInvalidSort_thenReturnBadRequest() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL).param("sort", "invalid"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockUser
+    void whenFindAllEmpty_thenReturnEmptyList() throws Exception {
+        ResponsePage<CommentDto> responsePage = new ResponsePage<>();
+        responsePage.setContent(List.of());
+        responsePage.setPage(0);
+        responsePage.setPageSize(2);
+        responsePage.setTotalElements(0L);
+        responsePage.setTotalPages(0);
+
+        when(commentService.findAll(anyInt(), any(Sort.class))).thenReturn(responsePage);
+
+        mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.content", hasSize(0)))
+                .andExpect(jsonPath("$.totalElements").value(0))
+                .andExpect(jsonPath("$.totalPages").value(0));
+
+        verify(commentService, times(1)).findAll(anyInt(), any(Sort.class));
     }
 
     @Test

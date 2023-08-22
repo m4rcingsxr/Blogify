@@ -1,17 +1,20 @@
 package com.blogify.controller;
 
+import com.blogify.entity.Comment;
 import com.blogify.entity.Customer;
+import com.blogify.payload.CategoryDto;
 import com.blogify.payload.CommentDto;
+import com.blogify.payload.ResponsePage;
 import com.blogify.service.CommentService;
 import com.blogify.service.CustomerService;
+import com.blogify.util.PageUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -22,9 +25,14 @@ public class CommentController {
     private final CustomerService customerService;
 
     @GetMapping
-    public ResponseEntity<List<CommentDto>> findAll() {
-        return ResponseEntity.ok(commentService.findAll());
+    public ResponseEntity<ResponsePage<CommentDto>> findAll(
+            @RequestParam(value = "page", defaultValue = "0") Integer page,
+            @RequestParam(value = "sort", required = false) String[] sort
+    ) {
+        Sort sortOrder = PageUtil.parseSort(sort, Comment.class);
+        return ResponseEntity.ok(commentService.findAll(page, sortOrder));
     }
+
 
     @GetMapping("/{commentId}")
     public ResponseEntity<CommentDto> findById(@PathVariable Long commentId) {

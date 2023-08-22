@@ -3,17 +3,21 @@ package com.blogify.service;
 import com.blogify.entity.Comment;
 import com.blogify.exception.ApiException;
 import com.blogify.payload.CommentDto;
+import com.blogify.payload.ResponsePage;
 import com.blogify.repository.CommentRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @RequiredArgsConstructor
 @Service
 public class CommentService implements EntityService<CommentDto> {
+
+    public static final int PAGE_SIZE = 10;
 
     private final CommentRepository commentRepository;
     private final ModelMapper modelMapper;
@@ -54,13 +58,20 @@ public class CommentService implements EntityService<CommentDto> {
     }
 
     @Override
-    public List<CommentDto> findAll() {
-        return commentRepository.findAll().stream().map(this::toDto).toList();
+    public ResponsePage<CommentDto> findAll(Integer pageNum, Sort sort) {
+        Page<Comment> page = commentRepository.findAll(PageRequest.of(pageNum, PAGE_SIZE, sort));
+
+        return ResponsePage.<CommentDto>builder()
+                .pageSize(PAGE_SIZE)
+                .totalElements(page.getTotalElements())
+                .totalPages(page.getTotalPages())
+                .content(page.getContent().stream().map(this::mapToDto).toList())
+                .build();
     }
 
     @Override
     public CommentDto findById(Long id) {
-        return toDto(findByIdInternal(id));
+        return mapToDto(findByIdInternal(id));
     }
 
     @Override
@@ -77,7 +88,7 @@ public class CommentService implements EntityService<CommentDto> {
         return new ApiException(HttpStatus.NOT_FOUND, "Comment not found.");
     }
 
-    private CommentDto toDto(Comment comment) {
+    private CommentDto mapToDto(Comment comment) {
         return modelMapper.map(comment, CommentDto.class);
     }
 

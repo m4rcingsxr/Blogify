@@ -3,6 +3,7 @@ package com.blogify.service;
 import com.blogify.entity.Article;
 import com.blogify.exception.ApiException;
 import com.blogify.payload.ArticleDto;
+import com.blogify.payload.ResponsePage;
 import com.blogify.repository.ArticleRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,9 +12,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -21,7 +25,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class ArticleServiceTest {
+class ArticleServiceUnitTest {
 
     @Mock
     private ArticleRepository articleRepository;
@@ -103,16 +107,18 @@ class ArticleServiceTest {
     @Test
     void givenArticlesExist_whenFindAll_thenArticlesAreReturned() {
         // Arrange
-        when(articleRepository.findAll()).thenReturn(Arrays.asList(article));
+        Page<Article> page = new PageImpl<>(Arrays.asList(article));
+        when(articleRepository.findAll(any(PageRequest.class))).thenReturn(page);
         when(modelMapper.map(any(Article.class), eq(ArticleDto.class))).thenReturn(articleDto);
 
         // Act
-        List<ArticleDto> articles = articleService.findAll();
+        ResponsePage<ArticleDto> responsePage = articleService.findAll(0, Sort.unsorted());
 
         // Assert
-        assertNotNull(articles);
-        assertEquals(1, articles.size());
-        verify(articleRepository, times(1)).findAll();
+        assertNotNull(responsePage);
+        assertEquals(1, responsePage.getContent().size());
+        assertEquals(articleDto, responsePage.getContent().get(0));
+        verify(articleRepository, times(1)).findAll(any(PageRequest.class));
         verify(modelMapper, times(1)).map(any(Article.class), eq(ArticleDto.class));
     }
 

@@ -2,16 +2,21 @@ package com.blogify.repository;
 
 import com.blogify.entity.Article;
 import com.blogify.entity.Comment;
-
+import com.blogify.util.TestUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.context.jdbc.Sql;
 
 import java.util.List;
 import java.util.Optional;
 
+import static com.blogify.util.ArticleTestUtil.generateDummyArticle;
 import static com.blogify.util.CommentTestUtil.generateDummyComment;
+import static com.blogify.util.TestUtil.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
@@ -98,19 +103,56 @@ class ArticleRepositoryTest {
         assertEquals(10, allArticles.size());
     }
 
-    @Test // cascade persist
+    @Test
+    void givenMultipleSortOrders_whenFindAll_thenShouldReturnSortedPageOfArticles() {
+        Sort a = getSortByMultipleFields(Sort.Direction.ASC, "id", "title");
+        Sort b = getSort("description", Sort.Direction.DESC);
+        Sort sort = getJoinedSort(a, b);
+
+        PageRequest pageRequest = getPageRequest(0, sort);
+
+        Page<Article> articles = articleRepository.findAll(pageRequest);
+
+        assertNotNull(articles);
+        assertFalse(articles.getContent().isEmpty());
+        assertEquals(10, articles.getTotalElements());
+        assertEquals(2, articles.getTotalPages());
+        assertTrue(TestUtil.isPageSortedCorrectly(articles, sort));
+    }
+
+    @Test
+    void givenNoOrders_whenFindAll_thenShouldReturnUnsortedPageOfArticles() {
+        PageRequest pageRequest = getPageRequest(0, Sort.unsorted());
+
+        Page<Article> articles = articleRepository.findAll(pageRequest);
+
+        assertNotNull(articles);
+        assertFalse(articles.getContent().isEmpty());
+        assertEquals(10, articles.getTotalElements());
+        assertEquals(2, articles.getTotalPages());
+    }
+
+    @Test
+    void givenExceedingPageNumber_whenFindAll_thenShouldReturnEmptyContent() {
+        PageRequest pageRequest = getPageRequest(9, Sort.unsorted());
+
+        Page<Article> articles = articleRepository.findAll(pageRequest);
+
+        assertNotNull(articles);
+        assertTrue(articles.getContent().isEmpty());
+        assertEquals(10, articles.getTotalElements());
+        assertEquals(2, articles.getTotalPages());
+    }
+
+    @Test
+        // cascade persist
     void givenArticleWithComments_whenSave_thenArticleAndCommentsAreSaved() {
         // Given
-        Article article = new Article();
-        article.setTitle("Article with Comments");
-        article.setDescription("This article has comments");
-        article.setContent("Content of the article with comments");
+        Article article = generateDummyArticle();
+        Comment comment = generateDummyComment();
+        comment.setId(null);
 
-        Comment comment1 = generateDummyComment("Barack Obama", "Great article!");
-        Comment comment2 = generateDummyComment("Donald Trump", "Very informative.");
-
-        article.addComment(comment1);
-        article.addComment(comment2);
+        article.addComment(comment);
 
         // When
         Article savedArticle = articleRepository.save(article);
@@ -119,10 +161,11 @@ class ArticleRepositoryTest {
         assertNotNull(savedArticle);
         assertNotNull(savedArticle.getId());
         assertEquals("Article with Comments", savedArticle.getTitle());
-        assertEquals(2, savedArticle.getComments().size());
+        assertEquals(1, savedArticle.getComments().size());
     }
 
-    @Test // cascade delete
+    @Test
+        // cascade delete
     void givenArticleWithComments_whenDelete_thenArticleAndCommentsAreDeleted() {
 
         // Given

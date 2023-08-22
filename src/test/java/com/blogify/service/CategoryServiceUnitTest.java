@@ -3,6 +3,7 @@ package com.blogify.service;
 import com.blogify.entity.Category;
 import com.blogify.exception.ApiException;
 import com.blogify.payload.CategoryDto;
+import com.blogify.payload.ResponsePage;
 import com.blogify.repository.CategoryRepository;
 import com.blogify.util.CategoryTestUtil;
 import org.junit.jupiter.api.Test;
@@ -11,6 +12,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 
 import java.util.List;
@@ -125,28 +130,38 @@ class CategoryServiceUnitTest {
 
     @Test
     void givenNonExistingCategory_whenFindAll_thenReturnEmptyList() {
-        when(categoryRepository.findAll()).thenReturn(List.of());
+        // Arrange
+        Page<Category> emptyPage = Page.empty(PageRequest.of(0, 10));
+        when(categoryRepository.findAll(any(PageRequest.class))).thenReturn(emptyPage);
 
-        List<CategoryDto> result = categoryService.findAll();
+        // Act
+        ResponsePage<CategoryDto> result = categoryService.findAll(0, Sort.unsorted());
 
-        assertTrue(result.isEmpty());
-        verify(categoryRepository, times(1)).findAll();
+        // Assert
+        assertTrue(result.getContent().isEmpty());
+        verify(categoryRepository, times(1)).findAll(any(PageRequest.class));
     }
+
 
     @Test
     void givenExistingCategories_whenFindAll_thenReturnCategoryDtoList() {
+        // Arrange
         Category category1 = CategoryTestUtil.generateDummyCategory();
         category1.setId(1L);
         Category category2 = CategoryTestUtil.generateDummyCategory();
         category2.setId(2L);
+        Page<Category> categoryPage = new PageImpl<>(List.of(category1, category2), PageRequest.of(0, 10), 2);
 
-        when(categoryRepository.findAll()).thenReturn(List.of(category1, category2));
+        when(categoryRepository.findAll(any(PageRequest.class))).thenReturn(categoryPage);
         when(modelMapper.map(category1, CategoryDto.class)).thenReturn(CategoryTestUtil.toDto(category1));
         when(modelMapper.map(category2, CategoryDto.class)).thenReturn(CategoryTestUtil.toDto(category2));
 
-        List<CategoryDto> result = categoryService.findAll();
+        // Act
+        ResponsePage<CategoryDto> result = categoryService.findAll(0, Sort.unsorted());
 
-        assertEquals(2, result.size());
-        verify(categoryRepository, times(1)).findAll();
+        // Assert
+        assertEquals(2, result.getContent().size());
+        verify(categoryRepository, times(1)).findAll(any(PageRequest.class));
     }
+
 }

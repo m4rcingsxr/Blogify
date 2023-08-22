@@ -3,6 +3,7 @@ package com.blogify.service;
 import com.blogify.entity.Comment;
 import com.blogify.exception.ApiException;
 import com.blogify.payload.CommentDto;
+import com.blogify.payload.ResponsePage;
 import com.blogify.repository.CommentRepository;
 import com.blogify.util.CommentTestUtil;
 import org.junit.jupiter.api.Test;
@@ -11,12 +12,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -48,7 +52,7 @@ class CommentServiceUnitTest {
 
     @Test
     void givenExistingComment_whenUpdate_thenRepositorySaveIsInvoked() {
-        Comment existingComment = CommentTestUtil.generateDummyComment("John Doe", "Java in practice");
+        Comment existingComment = CommentTestUtil.generateDummyComment();
         existingComment.setId(1L);
 
         CommentDto updatedCommentDto = CommentTestUtil.generateDummyCommentDto();
@@ -68,7 +72,7 @@ class CommentServiceUnitTest {
 
     @Test
     void givenExistingComment_whenFindById_thenFindCommentIsInvoked() {
-        Comment existingComment = CommentTestUtil.generateDummyComment("John Doe", "Java in practice");
+        Comment existingComment = CommentTestUtil.generateDummyComment();
         existingComment.setId(1L);
         CommentDto commentDto = CommentTestUtil.toDto(existingComment);
 
@@ -94,7 +98,7 @@ class CommentServiceUnitTest {
 
     @Test
     void givenExistingComment_whenDeleteById_thenRepositoryDeleteIsInvoked() {
-        Comment existingComment = CommentTestUtil.generateDummyComment("John Doe", "Java in practice");
+        Comment existingComment = CommentTestUtil.generateDummyComment();
         existingComment.setId(1L);
 
         when(commentRepository.findById(existingComment.getId())).thenReturn(Optional.of(existingComment));
@@ -117,17 +121,24 @@ class CommentServiceUnitTest {
 
     @Test
     void givenCommentsExist_whenFindAll_thenRepositoryFindAllIsInvoked() {
-        Comment existingComment = CommentTestUtil.generateDummyComment("John Doe", "Java in practice");
+        // Arrange
+        Comment existingComment = CommentTestUtil.generateDummyComment();
+        existingComment.setId(1L);
         CommentDto commentDto = CommentTestUtil.toDto(existingComment);
+        Page<Comment> commentPage = new PageImpl<>(List.of(existingComment), PageRequest.of(0, CommentService.PAGE_SIZE), 1);
 
-        when(commentRepository.findAll()).thenReturn(List.of(existingComment));
+        when(commentRepository.findAll(any(PageRequest.class))).thenReturn(commentPage);
         when(modelMapper.map(existingComment, CommentDto.class)).thenReturn(commentDto);
 
-        List<CommentDto> comments = commentService.findAll();
+        // Act
+        ResponsePage<CommentDto> responsePage = commentService.findAll(0, Sort.unsorted());
 
-        assertEquals(1, comments.size());
-        assertEquals(commentDto, comments.get(0));
-
-        verify(commentRepository, times(1)).findAll();
+        // Assert
+        assertNotNull(responsePage);
+        assertEquals(1, responsePage.getContent().size());
+        assertEquals(commentDto, responsePage.getContent().get(0));
+        verify(commentRepository, times(1)).findAll(any(PageRequest.class));
+        verify(modelMapper, times(1)).map(existingComment, CommentDto.class);
     }
+
 }

@@ -1,12 +1,11 @@
 package com.blogify.payload;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.*;
-import org.w3c.dom.Entity;
-
-import java.io.Serializable;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 @EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor

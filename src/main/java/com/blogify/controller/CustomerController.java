@@ -1,15 +1,18 @@
 package com.blogify.controller;
 
+import com.blogify.entity.Customer;
+import com.blogify.payload.ArticleDto;
 import com.blogify.payload.CustomerDto;
+import com.blogify.payload.ResponsePage;
 import com.blogify.service.CustomerService;
+import com.blogify.util.PageUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -19,9 +22,12 @@ public class CustomerController {
     private final CustomerService customerService;
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<CustomerDto>> findAll() {
-        return ResponseEntity.ok(customerService.findAll());
+    public ResponseEntity<ResponsePage<CustomerDto>> findAll(
+            @RequestParam(value = "page", defaultValue = "0") Integer page,
+            @RequestParam(value = "sort", required = false) String[] sort
+    ) {
+        Sort sortOrder = PageUtil.parseSort(sort, Customer.class);
+        return ResponseEntity.ok(customerService.findAll(page, sortOrder));
     }
 
     @GetMapping("/{customerId}")

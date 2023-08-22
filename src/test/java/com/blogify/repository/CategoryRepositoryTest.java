@@ -2,15 +2,20 @@ package com.blogify.repository;
 
 import com.blogify.entity.Article;
 import com.blogify.entity.Category;
+import com.blogify.util.TestUtil;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.context.jdbc.Sql;
 
 import java.util.List;
 import java.util.Optional;
 
+import static com.blogify.util.TestUtil.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -120,6 +125,47 @@ class CategoryRepositoryTest {
                                                                     "Travel on a Budget",
                                                                     "Minimalist Living"
         );
+    }
+
+    @Test
+    void givenMultipleSortOrders_whenFindAll_thenShouldReturnSortedPageOfCategories() {
+        Sort a = getSort("id", Sort.Direction.ASC);
+        Sort b = getSort("name", Sort.Direction.DESC);
+        Sort sort = getJoinedSort(a, b);
+
+        PageRequest pageRequest = getPageRequest(0, sort);
+
+        Page<Category> categories = categoryRepository.findAll(pageRequest);
+
+        assertNotNull(categories);
+        assertFalse(categories.getContent().isEmpty());
+        assertEquals(5, categories.getTotalElements());
+        assertEquals(1, categories.getTotalPages());
+        assertTrue(TestUtil.isPageSortedCorrectly(categories, sort));
+    }
+
+    @Test
+    void givenNoOrders_whenFindAll_thenShouldReturnUnsortedPageOfCategories() {
+        PageRequest pageRequest = getPageRequest(0, Sort.unsorted());
+
+        Page<Category> categories = categoryRepository.findAll(pageRequest);
+
+        assertNotNull(categories);
+        assertFalse(categories.getContent().isEmpty());
+        assertEquals(5, categories.getTotalElements());
+        assertEquals(1, categories.getTotalPages());
+    }
+
+    @Test
+    void givenExceedingPageNumber_whenFindAll_thenShouldReturnEmptyContent() {
+        PageRequest pageRequest = getPageRequest(9, Sort.unsorted());
+
+        Page<Category> categories = categoryRepository.findAll(pageRequest);
+
+        assertNotNull(categories);
+        assertTrue(categories.getContent().isEmpty());
+        assertEquals(5, categories.getTotalElements());
+        assertEquals(1, categories.getTotalPages());
     }
 
     @Test

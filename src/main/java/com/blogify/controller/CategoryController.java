@@ -1,16 +1,18 @@
 package com.blogify.controller;
 
+import com.blogify.entity.Category;
 import com.blogify.payload.CategoryDto;
+import com.blogify.payload.CategoryDto;
+import com.blogify.payload.ResponsePage;
 import com.blogify.service.CategoryService;
+import com.blogify.util.PageUtil;
 import jakarta.validation.Valid;
-import jdk.jfr.ContentType;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -20,8 +22,12 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @GetMapping
-    public ResponseEntity<List<CategoryDto>> findAll() {
-        return ResponseEntity.ok(categoryService.findAll());
+    public ResponseEntity<ResponsePage<CategoryDto>> findAll(
+            @RequestParam(value = "page", defaultValue = "0") Integer page,
+            @RequestParam(value = "sort", required = false) String[] sort
+    ) {
+        Sort sortOrder = PageUtil.parseSort(sort, Category.class);
+        return ResponseEntity.ok(categoryService.findAll(page, sortOrder));
     }
 
     @PostMapping

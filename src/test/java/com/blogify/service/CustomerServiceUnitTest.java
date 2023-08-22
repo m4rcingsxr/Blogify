@@ -1,18 +1,24 @@
 package com.blogify.service;
 
-import com.blogify.util.CustomerTestUtil;
 import com.blogify.entity.Customer;
 import com.blogify.exception.ApiException;
 import com.blogify.payload.CustomerDto;
+import com.blogify.payload.ResponsePage;
 import com.blogify.repository.CustomerRepository;
+import com.blogify.util.CustomerTestUtil;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -140,6 +146,33 @@ class CustomerServiceUnitTest {
 
         verify(customerRepository, times(1)).findById(notExistingCustomer.getId());
         verifyNoInteractions(passwordEncoder);
+    }
+
+    @Test
+    void givenCustomersExist_whenFindAll_thenReturnResponsePageOfCustomerDtos() {
+        // Arrange
+        Customer customer = CustomerTestUtil.generateDummyCustomer();
+        customer.setId(1L);
+
+        CustomerDto customerDto = CustomerTestUtil.toDto(customer);
+
+        Page<Customer> customerPage = new PageImpl<>(List.of(customer), PageRequest.of(0, 10), 1);
+        when(customerRepository.findAll(any(PageRequest.class))).thenReturn(customerPage);
+        when(modelMapper.map(customer, CustomerDto.class)).thenReturn(customerDto);
+
+        // Act
+        ResponsePage<CustomerDto> responsePage = customerService.findAll(0, Sort.unsorted());
+
+        // Assert
+        assertNotNull(responsePage);
+        assertEquals(1, responsePage.getContent().size());
+        assertEquals(customerDto, responsePage.getContent().get(0));
+        assertEquals(0, responsePage.getPage());
+        assertEquals(10, responsePage.getPageSize());
+        assertEquals(1, responsePage.getTotalElements());
+        assertEquals(1, responsePage.getTotalPages());
+        verify(customerRepository, times(1)).findAll(any(PageRequest.class));
+        verify(modelMapper, times(1)).map(customer, CustomerDto.class);
     }
 
 }

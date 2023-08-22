@@ -2,6 +2,7 @@ package com.blogify.controller;
 
 import com.blogify.entity.Customer;
 import com.blogify.payload.CustomerDto;
+import com.blogify.payload.ResponsePage;
 import com.blogify.service.CustomerService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -19,7 +21,8 @@ import java.util.HashSet;
 import java.util.List;
 
 import static com.blogify.util.CustomerTestUtil.*;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -51,22 +54,80 @@ class CustomerControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
-    void whenListAll_thenReturnListOfCustomers() throws Exception {
-        Customer customer2 = generateDummyCustomer();
-        customer2.setId(2L);
+    @WithMockUser
+    void whenFindAll_thenReturnListOfCustomers() throws Exception {
+        CustomerDto customerDto2 = generateCustomerDto();
 
-        when(customerService.findAll()).thenReturn(List.of(customerDto, toDto(customer2)));
+        ResponsePage<CustomerDto> responsePage = new ResponsePage<>();
+        responsePage.setContent(List.of(customerDto, customerDto2));
+        responsePage.setPage(0);
+        responsePage.setPageSize(2);
+        responsePage.setTotalElements(2L);
+        responsePage.setTotalPages(1);
 
-        mockMvc.perform(get(BASE_URL))
+        when(customerService.findAll(anyInt(), any(Sort.class))).thenReturn(responsePage);
+
+        mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].email").value(customer.getEmail()))
-                .andExpect(jsonPath("$[0].firstName").value(customer.getFirstName()))
-                .andExpect(jsonPath("$[0].lastName").value(customer.getLastName()))
-                .andExpect(jsonPath("$[0].password").value(customer.getPassword()));
+                .andExpect(jsonPath("$.content", hasSize(2)))
+                .andExpect(jsonPath("$.content[0].firstName").value(customerDto.getFirstName()))
+                .andExpect(jsonPath("$.content[0].lastName").value(customerDto.getLastName()))
+                .andExpect(jsonPath("$.content[1].firstName").value(customerDto2.getFirstName()))
+                .andExpect(jsonPath("$.content[1].lastName").value(customerDto2.getLastName()));
 
-        verify(customerService, times(1)).findAll();
+        verify(customerService, times(1)).findAll(anyInt(), any(Sort.class));
+    }
+
+    @Test
+    @WithMockUser
+    void whenFindAllWithPagination_thenReturnPaginatedListOfCustomers() throws Exception {
+        ResponsePage<CustomerDto> responsePage = new ResponsePage<>();
+        responsePage.setContent(List.of(customerDto));
+        responsePage.setPage(1);
+        responsePage.setPageSize(1);
+        responsePage.setTotalElements(2L);
+        responsePage.setTotalPages(2);
+
+        when(customerService.findAll(anyInt(), any(Sort.class))).thenReturn(responsePage);
+
+        mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL).param("page", "1").param("size", "1"))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.content", hasSize(1)))
+                .andExpect(jsonPath("$.content[0].firstName").value(customerDto.getFirstName()))
+                .andExpect(jsonPath("$.page").value(1))
+                .andExpect(jsonPath("$.pageSize").value(1))
+                .andExpect(jsonPath("$.totalElements").value(2))
+                .andExpect(jsonPath("$.totalPages").value(2));
+
+        verify(customerService, times(1)).findAll(anyInt(), any(Sort.class));
+    }
+
+    @Test
+    @WithMockUser
+    void whenFindAllWithInvalidSort_thenReturnBadRequest() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL).param("sort", "invalid"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockUser
+    void whenFindAllEmpty_thenReturnEmptyList() throws Exception {
+        ResponsePage<CustomerDto> responsePage = new ResponsePage<>();
+        responsePage.setContent(List.of());
+        responsePage.setPage(0);
+        responsePage.setPageSize(2);
+        responsePage.setTotalElements(0L);
+        responsePage.setTotalPages(0);
+
+        when(customerService.findAll(anyInt(), any(Sort.class))).thenReturn(responsePage);
+
+        mockMvc.perform(MockMvcRequestBuilders.get(BASE_URL))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.content", hasSize(0)))
+                .andExpect(jsonPath("$.totalElements").value(0))
+                .andExpect(jsonPath("$.totalPages").value(0));
+
+        verify(customerService, times(1)).findAll(anyInt(), any(Sort.class));
     }
 
     @Test

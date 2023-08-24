@@ -1,5 +1,7 @@
-package com.blogify.security;
+package com.blogify.config;
 
+import com.blogify.security.JwtAuthenticationEntryPoint;
+import com.blogify.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -38,8 +40,13 @@ public class WebSecurityConfig {
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http.csrf(csrf -> csrf.disable()).authorizeHttpRequests(
-                (authorize) -> authorize.requestMatchers(
-                        "/api/auth/**").permitAll().anyRequest().authenticated()
+                (authorize) -> authorize
+                        .requestMatchers("/api/v1/auth/**",
+                                         "/v3/api-docs",
+                                         "/v3/api-docs/**",
+                                         "/swagger-ui/**",
+                                         "/swagger-ui.html").permitAll()
+                        .anyRequest().authenticated()
 
         ).exceptionHandling(exception -> exception.authenticationEntryPoint(
                 authenticationEntryPoint)).sessionManagement(

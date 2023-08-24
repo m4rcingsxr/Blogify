@@ -1,7 +1,6 @@
 package com.blogify.controller;
 
 import com.blogify.entity.Customer;
-import com.blogify.payload.ArticleDto;
 import com.blogify.payload.CustomerDto;
 import com.blogify.payload.ResponsePage;
 import com.blogify.service.CustomerService;
@@ -16,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/customers")
+@RequestMapping("/api/v1/customers")
 public class CustomerController {
 
     private final CustomerService customerService;

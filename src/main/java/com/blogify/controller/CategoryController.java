@@ -2,7 +2,6 @@ package com.blogify.controller;
 
 import com.blogify.entity.Category;
 import com.blogify.payload.CategoryDto;
-import com.blogify.payload.CategoryDto;
 import com.blogify.payload.ResponsePage;
 import com.blogify.service.CategoryService;
 import com.blogify.util.PageUtil;
@@ -16,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/categories")
+@RequestMapping("/api/v1/categories")
 public class CategoryController {
 
     private final CategoryService categoryService;

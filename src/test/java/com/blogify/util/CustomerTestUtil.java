@@ -5,7 +5,6 @@ import com.blogify.entity.Role;
 import com.blogify.payload.CustomerDto;
 import lombok.experimental.UtilityClass;
 
-import java.util.List;
 import java.util.Random;
 import java.util.Set;
 

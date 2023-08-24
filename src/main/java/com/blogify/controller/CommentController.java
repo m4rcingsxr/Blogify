@@ -2,7 +2,6 @@ package com.blogify.controller;
 
 import com.blogify.entity.Comment;
 import com.blogify.entity.Customer;
-import com.blogify.payload.CategoryDto;
 import com.blogify.payload.CommentDto;
 import com.blogify.payload.ResponsePage;
 import com.blogify.service.CommentService;
@@ -18,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/comments")
+@RequestMapping("/api/v1/comments")
 public class CommentController {
 
     private final CommentService commentService;

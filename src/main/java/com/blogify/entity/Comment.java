@@ -14,10 +14,12 @@ import java.util.Objects;
 @Getter
 @Setter
 @Entity
-@Table(name = "comments")
+@Table(name = "comments", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"full_name", "article_id"})
+})
 public class Comment extends BaseEntity {
 
-    @Column(name = "full_name", nullable = false, unique = true, length = 255)
+    @Column(name = "full_name", nullable = false, length = 255)
     private String fullName;
 
     @Column(name = "content", nullable = false, length = 500)

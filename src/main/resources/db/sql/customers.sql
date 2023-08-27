@@ -1,6 +1,6 @@
 INSERT INTO customers (email, password, first_name, last_name) VALUES ('adam.adams@example.com', '$2a$12$aCf07EJ8kS3DOWSH7z7rY.HYOeoTVUr.ht1iqqgDOeo9kaYr.l2VS', 'Adam', 'Adams');
-INSERT INTO customers (email, password, first_name, last_name) VALUES ('amanda.anderson@example.com', '$2b$12$abcdefghijklnmnopqrstuvwxyz123456781234567890', 'Amanda', 'Anderson');
-INSERT INTO customers (email, password, first_name, last_name) VALUES ('adam.alexander@example.com', '$2b$12$abcdefghijklnmnopqrstuvwxyz123456781234567890', 'Adam', 'Alexander');
+INSERT INTO customers (email, password, first_name, last_name) VALUES ('amanda.anderson@example.com', '$2a$12$aCf07EJ8kS3DOWSH7z7rY.HYOeoTVUr.ht1iqqgDOeo9kaYr.l2VS', 'Amanda', 'Anderson');
+INSERT INTO customers (email, password, first_name, last_name) VALUES ('adam.alexander@example.com', '$2a$12$aCf07EJ8kS3DOWSH7z7rY.HYOeoTVUr.ht1iqqgDOeo9kaYr.l2VS', 'Adam', 'Alexander');
 INSERT INTO customers (email, password, first_name, last_name) VALUES ('betty.barnes@example.com', '$2b$12$abcdefghijklnmnopqrstuvwxyz123456781234567890', 'Betty', 'Barnes');
 INSERT INTO customers (email, password, first_name, last_name) VALUES ('brian.bennett@example.com', '$2b$12$abcdefghijklnmnopqrstuvwxyz123456781234567890', 'Brian', 'Bennett');
 INSERT INTO customers (email, password, first_name, last_name) VALUES ('brenda.brown@example.com', '$2b$12$abcdefghijklnmnopqrstuvwxyz123456781234567890', 'Brenda', 'Brown');

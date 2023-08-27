@@ -31,7 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 class CustomerControllerTest {
 
-    private static final String BASE_URL = "/api/customers";
+    private static final String BASE_URL = "/api/v1/customers";
     private static final long CUSTOMER_ID = 1L;
 
     @MockBean
@@ -192,7 +192,7 @@ class CustomerControllerTest {
         invalidCustomerDto.setRoles(new HashSet<>());
 
         // When & Then
-        mockMvc.perform(put("/api/customers/{customerId}", 1L)
+        mockMvc.perform(put("/api/v1/customers/{customerId}", 1L)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(invalidCustomerDto)))
                 .andExpect(status().isBadRequest())

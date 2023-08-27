@@ -27,7 +27,7 @@ public class Article extends BaseEntity {
     @Column(name = "description", nullable = false, length = 255)
     private String description;
 
-    @Column(name = "content", nullable = false, columnDefinition = "CLOB")
+    @Column(name = "content", nullable = false, columnDefinition = "LONGTEXT")
     private String content;
 
     @ManyToOne(fetch = FetchType.LAZY)

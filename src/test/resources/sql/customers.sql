@@ -9,12 +9,6 @@ INSERT INTO customers (id, email, password, first_name, last_name) VALUES (8, 'j
 INSERT INTO customers (id, email, password, first_name, last_name) VALUES (9, 'Julia.james@example.com', '$2b$12$abcdefghijklnmnopqrstuvwxyz123456781234567890', 'Julia', 'James');
 INSERT INTO customers (id, email, password, first_name, last_name) VALUES (10, 'julia.jacobs@example.com', '$2b$12$abcdefghijklnmnopqrstuvwxyz123456781234567890', 'Julia', 'Jacobs');
 
-
-
-INSERT INTO roles (id, name, description) VALUES (1, 'ROLE_ADMIN', 'Administrator with full access');
-INSERT INTO roles (id, name, description) VALUES (2, 'ROLE_EDITOR', 'Editor with access to edit content');
-INSERT INTO roles (id, name, description) VALUES (3, 'ROLE_USER', 'Regular user with limited access');
-
 insert into customers_roles (customer_id, role_id) values (1,1);
 insert into customers_roles (customer_id, role_id) values (1,2);
 insert into customers_roles (customer_id, role_id) values (1,3);

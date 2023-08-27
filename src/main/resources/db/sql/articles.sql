@@ -1,0 +1,9 @@
+INSERT INTO articles (title, description, content, category_id) VALUES
+                                                                    ('The Future of AI', 'Exploring the advancements in AI technology', 'Artificial Intelligence (AI) is rapidly evolving...', 1),
+                                                                    ('Health Benefits of a Balanced Diet', 'Understanding the importance of nutrition', 'A balanced diet is crucial for maintaining...', 2),
+                                                                    ('Climate Change and Its Impact', 'Analyzing the effects of global warming', 'Climate change is a pressing issue that...', 3),
+                                                                    ('Advancements in Online Education', 'The rise of e-learning platforms', 'Online education has transformed the way...', 4),
+                                                                    ('Top 10 Exercises for a Healthy Life', 'Staying fit with these simple exercises', 'Regular exercise is essential for a healthy...', 2),
+                                                                    ('The Role of Technology in Modern Education', 'How tech is changing classrooms', 'Technology has become an integral part of...', 1),
+                                                                    ('Protecting the Environment', 'Simple ways to reduce your carbon footprint', 'Everyone can contribute to protecting...', 3),
+                                                                    ('The Future of Sports', 'Technological advancements in sports', 'Sports are being transformed by technology...', 5);

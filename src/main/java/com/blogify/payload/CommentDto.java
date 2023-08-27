@@ -1,5 +1,6 @@
 package com.blogify.payload;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -21,6 +22,7 @@ public class CommentDto extends EntityDto {
     @NotNull(message = "Article id is required")
     private Long articleId;
 
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     private String fullName;
 
 }

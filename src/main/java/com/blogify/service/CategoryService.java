@@ -54,6 +54,7 @@ public class CategoryService implements EntityService<CategoryDto> {
 
         return ResponsePage.<CategoryDto>builder()
                 .pageSize(PAGE_SIZE)
+                .page(pageNum)
                 .totalElements(page.getTotalElements())
                 .totalPages(page.getTotalPages())
                 .content(page.getContent().stream().map(this::mapToDto).toList())

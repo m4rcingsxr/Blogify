@@ -48,19 +48,20 @@ class CommentRepositoryTest {
     }
 
     @Test
-    void givenExistingCommentFullName_whenFindByFullName_thenCommentFound() {
+    void givenExistingCommentFullNameAndArticleId_whenFindByFullNameAndArticleId_thenCommentFound() {
         // When
-        Optional<Comment> comment = commentRepository.findByFullName("John Doe");
+        Optional<Comment> comment = commentRepository.findByFullNameAndArticleId("John Doe", 1L);
 
         // Then
         assertTrue(comment.isPresent());
         assertEquals("John Doe", comment.get().getFullName());
+        assertNotNull(comment.get().getArticle());
     }
 
     @Test
-    void givenNotExistingFullName_whenFindByFullName_thenCommentNotFound() {
+    void givenNotExistingFullNameWithArticleId_whenFindByFullName_thenCommentNotFound() {
         // When
-        Optional<Comment> comment = commentRepository.findByFullName("Non Existent");
+        Optional<Comment> comment = commentRepository.findByFullNameAndArticleId("Non Existent", 1L);
 
         // Then
         assertTrue(comment.isEmpty());

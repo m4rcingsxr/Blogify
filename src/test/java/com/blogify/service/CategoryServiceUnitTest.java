@@ -139,6 +139,10 @@ class CategoryServiceUnitTest {
 
         // Assert
         assertTrue(result.getContent().isEmpty());
+        assertEquals(0, result.getPage());
+        assertEquals(0, result.getTotalElements());
+        assertEquals(0, result.getTotalPages());
+
         verify(categoryRepository, times(1)).findAll(any(PageRequest.class));
     }
 
@@ -150,7 +154,7 @@ class CategoryServiceUnitTest {
         category1.setId(1L);
         Category category2 = CategoryTestUtil.generateDummyCategory();
         category2.setId(2L);
-        Page<Category> categoryPage = new PageImpl<>(List.of(category1, category2), PageRequest.of(0, 10), 2);
+        Page<Category> categoryPage = new PageImpl<>(List.of(category1, category2), PageRequest.of(0, 1), 2);
 
         when(categoryRepository.findAll(any(PageRequest.class))).thenReturn(categoryPage);
         when(modelMapper.map(category1, CategoryDto.class)).thenReturn(CategoryTestUtil.toDto(category1));
@@ -161,6 +165,10 @@ class CategoryServiceUnitTest {
 
         // Assert
         assertEquals(2, result.getContent().size());
+        assertEquals(0, result.getPage());
+        assertEquals(2, result.getTotalElements());
+        assertEquals(2, result.getTotalPages());
+
         verify(categoryRepository, times(1)).findAll(any(PageRequest.class));
     }
 

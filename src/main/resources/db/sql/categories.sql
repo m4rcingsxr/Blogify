@@ -1,0 +1,1 @@
+INSERT INTO categories (name) VALUES ('Technology'), ('Health'), ('Environment'), ('Education'), ('Sports');

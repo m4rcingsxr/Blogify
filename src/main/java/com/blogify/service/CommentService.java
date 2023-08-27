@@ -4,6 +4,7 @@ import com.blogify.entity.Comment;
 import com.blogify.exception.ApiException;
 import com.blogify.payload.CommentDto;
 import com.blogify.payload.ResponsePage;
+import com.blogify.repository.ArticleRepository;
 import com.blogify.repository.CommentRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -21,10 +22,12 @@ public class CommentService implements EntityService<CommentDto> {
 
     private final CommentRepository commentRepository;
     private final ModelMapper modelMapper;
+    private final ArticleRepository articleRepository;
 
     @Override
     public CommentDto create(CommentDto newComment) {
-        validateComment(null, newComment.getFullName());
+        validateArticleExist(newComment.getArticleId());
+        validateComment(null, newComment.getArticleId(),  newComment.getFullName());
         save(newComment);
 
         return newComment;
@@ -32,7 +35,9 @@ public class CommentService implements EntityService<CommentDto> {
 
     @Override
     public CommentDto update(Long id, CommentDto newComment) {
-        validateComment(id, newComment.getFullName());
+        newComment.setId(id);
+        validateArticleExist(newComment.getArticleId());
+        validateComment(id,newComment.getArticleId(), newComment.getFullName());
         save(newComment);
 
         return newComment;
@@ -43,16 +48,23 @@ public class CommentService implements EntityService<CommentDto> {
         newComment.setId(save.getId());
     }
 
-    private void validateComment(Long id, String fullName) {
-        commentRepository.findByFullName(fullName).ifPresent(comment -> {
-            if (!comment.getId().equals(id)) {
+    private void validateArticleExist(Long articleId) {
+        boolean articleExist = articleRepository.existsById(articleId);
+        if (!articleExist) {
+            throw new ApiException(HttpStatus.NOT_FOUND, "Article not found");
+        }
+    }
+
+    private void validateComment(Long commentId, Long articleId, String fullName) {
+        commentRepository.findByFullNameAndArticleId(fullName, articleId).ifPresent(comment -> {
+            if (comment.getArticle().getId().equals(articleId) && !comment.getId().equals(commentId)) {
                 throw new ApiException(HttpStatus.BAD_REQUEST,
-                    "User '" + fullName + "' already posted comment for this " + "Article."
+                    "You already posted comment for this Article"
                 );
             }
         });
 
-        if (id != null && !commentRepository.existsById(id)) {
+        if (commentId != null && !commentRepository.existsById(commentId)) {
             throw generateNotFound();
         }
     }
@@ -62,6 +74,7 @@ public class CommentService implements EntityService<CommentDto> {
         Page<Comment> page = commentRepository.findAll(PageRequest.of(pageNum, PAGE_SIZE, sort));
 
         return ResponsePage.<CommentDto>builder()
+                .page(pageNum)
                 .pageSize(PAGE_SIZE)
                 .totalElements(page.getTotalElements())
                 .totalPages(page.getTotalPages())

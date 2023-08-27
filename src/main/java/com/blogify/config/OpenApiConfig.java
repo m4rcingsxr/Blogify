@@ -6,10 +6,8 @@ import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.info.Contact;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.info.License;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.servers.Server;
-import org.springframework.security.access.annotation.Secured;
 
 @OpenAPIDefinition(
         info = @Info(
@@ -24,19 +22,19 @@ import org.springframework.security.access.annotation.Secured;
                         name = "MIT License",
                         url = "https://opensource.org/licenses/MIT"
                 ),
-                termsOfService = "Terms of service"
+                termsOfService = "http://localhost:8080/blogify/terms-of-service"
         ),
         servers = {
                 @Server(
-                        description = "Local ENV",
+                        description = "localhost",
                         url = "http://localhost:8080/blogify"
                 ),
                 @Server(
                         description = "Prod ENV",
-                        url = "http://localhost:8080/blogify"
+                        url = "http://blogify-env.eba-yrg2gm78.eu-north-1.elasticbeanstalk.com/blogify"
                 )
-        },
-        security = @SecurityRequirement(name = "bearerAuth") // globally - per class we could change authentication type for each controller
+        }
+//       , security = @SecurityRequirement(name = "bearerAuth") // globally - per class we could change authentication type for each controller
 )
 @SecurityScheme( // use schemes to define more than one
         name = "bearerAuth",

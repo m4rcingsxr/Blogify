@@ -22,8 +22,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class AuthControllerTest {
 
-    private static final String LOGIN_URL = "/api/auth/login";
-    private static final String REGISTER_URL = "/api/auth/register";
+    private static final String LOGIN_URL = "/api/v1/auth/login";
+    private static final String REGISTER_URL = "/api/v1/auth/register";
     private static final String JWT_TOKEN = "jwt token";
     private static final String LOGIN_JSON = "{\"email\":\"testuser@gmail.com\", \"password\":\"testpassword\"}";
     private static final String REGISTER_JSON = "{\"firstName\":\"newuser\",\"lastName\":\"abc\", \"password\":\"newpassword\", \"email\":\"newuser@example.com\"}";
@@ -73,7 +73,7 @@ class AuthControllerTest {
         invalidLoginRequest.setEmail("invalid-email");
         invalidLoginRequest.setPassword("");
 
-        mockMvc.perform(post("/api/auth/login")
+        mockMvc.perform(post("/api/v1/auth/login")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(invalidLoginRequest)))
                 .andExpect(status().isBadRequest())
@@ -89,7 +89,7 @@ class AuthControllerTest {
         invalidRegistrationRequest.setFirstName("");
         invalidRegistrationRequest.setLastName("");
 
-        mockMvc.perform(post("/api/auth/register")
+        mockMvc.perform(post("/api/v1/auth/register")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(invalidRegistrationRequest)))
                 .andExpect(status().isBadRequest())

@@ -8,5 +8,5 @@ import java.util.Optional;
 
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Long> {
-    Optional<Comment> findByFullName(String fullName);
+    Optional<Comment> findByFullNameAndArticleId(String fullName, Long articleId);
 }

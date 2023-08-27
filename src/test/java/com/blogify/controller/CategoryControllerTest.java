@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 class CategoryControllerTest {
 
-    private static final String BASE_URL = "/api/categories";
+    private static final String BASE_URL = "/api/v1/categories";
     private static final long CATEGORY_ID = 1L;
 
     @MockBean

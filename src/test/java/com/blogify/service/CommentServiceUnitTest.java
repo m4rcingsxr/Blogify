@@ -1,10 +1,13 @@
 package com.blogify.service;
 
+import com.blogify.entity.Article;
 import com.blogify.entity.Comment;
 import com.blogify.exception.ApiException;
 import com.blogify.payload.CommentDto;
 import com.blogify.payload.ResponsePage;
+import com.blogify.repository.ArticleRepository;
 import com.blogify.repository.CommentRepository;
+import com.blogify.util.ArticleTestUtil;
 import com.blogify.util.CommentTestUtil;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,6 +33,9 @@ class CommentServiceUnitTest {
     private CommentRepository commentRepository;
 
     @Mock
+    private ArticleRepository articleRepository;
+
+    @Mock
     private ModelMapper modelMapper;
 
     @InjectMocks
@@ -42,12 +48,14 @@ class CommentServiceUnitTest {
 
         when(commentRepository.save(any(Comment.class))).thenReturn(newComment);
         when(modelMapper.map(newCommentDto, Comment.class)).thenReturn(newComment);
+        when(articleRepository.existsById(newCommentDto.getArticleId())).thenReturn(true);
 
         CommentDto createdComment = commentService.create(newCommentDto);
 
         assertEquals(newCommentDto, createdComment);
 
         verify(commentRepository, times(1)).save(newComment);
+        verify(articleRepository, times(1)).existsById(newCommentDto.getArticleId());
     }
 
     @Test
@@ -61,6 +69,7 @@ class CommentServiceUnitTest {
         when(commentRepository.existsById(existingComment.getId())).thenReturn(true);
         when(commentRepository.save(any(Comment.class))).thenReturn(existingComment);
         when(modelMapper.map(updatedCommentDto, Comment.class)).thenReturn(existingComment);
+        when(articleRepository.existsById(updatedCommentDto.getArticleId())).thenReturn(true);
 
         CommentDto updatedComment = commentService.update(existingComment.getId(), updatedCommentDto);
 
@@ -68,6 +77,7 @@ class CommentServiceUnitTest {
 
         verify(commentRepository, times(1)).existsById(existingComment.getId());
         verify(commentRepository, times(1)).save(existingComment);
+        verify(articleRepository, times(1)).existsById(updatedCommentDto.getArticleId());
     }
 
     @Test

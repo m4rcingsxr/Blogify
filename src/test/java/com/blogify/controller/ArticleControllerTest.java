@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 class ArticleControllerTest {
 
-    private static final String BASE_URL = "/api/articles";
+    private static final String BASE_URL = "/api/v1/articles";
     private static final long ARTICLE_ID = 1L;
 
     @MockBean

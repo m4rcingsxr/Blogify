@@ -32,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 class CommentControllerTest {
 
-    private static final String BASE_URL = "/api/comments";
+    private static final String BASE_URL = "/api/v1/comments";
     private static final long COMMENT_ID = 1L;
 
     @MockBean
@@ -172,7 +172,7 @@ class CommentControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "test@gmail.com")
+    @WithMockUser(roles = "EDITOR", username = "test@gmail.com")
     void givenValidComment_whenUpdate_thenReturnUpdatedComment() throws Exception {
         commentDto.setArticleId(1L);
 
@@ -197,7 +197,7 @@ class CommentControllerTest {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(roles = "EDITOR")
     void givenCommentId_whenDelete_thenReturnStatusOk() throws Exception {
         doNothing().when(commentService).deleteById(COMMENT_ID);
 

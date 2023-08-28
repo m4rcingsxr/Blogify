@@ -1,5 +1,6 @@
 package com.blogify.controller;
 
+import com.blogify.Constants;
 import com.blogify.payload.CategoryDto;
 import com.blogify.payload.ResponsePage;
 import com.blogify.service.CategoryService;
@@ -27,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 class CategoryControllerTest {
 
-    private static final String BASE_URL = "/api/v1/categories";
+    private static final String BASE_URL = "/api/" + Constants.VERSION + "/categories";
     private static final long CATEGORY_ID = 1L;
 
     @MockBean

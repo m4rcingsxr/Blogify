@@ -1,5 +1,6 @@
 package com.blogify.controller;
 
+import com.blogify.Constants;
 import com.blogify.entity.Category;
 import com.blogify.payload.CategoryDto;
 import com.blogify.payload.ErrorResponse;
@@ -23,7 +24,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/v1/categories")
+@RequestMapping("/api/"+ Constants.VERSION +"/categories")
 @Tag(name = "Category Management", description = "Operations related to managing categories")
 @SecurityRequirement(name = "bearerAuth")
 public class CategoryController {

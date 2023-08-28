@@ -1,5 +1,6 @@
 package com.blogify.controller;
 
+import com.blogify.Constants;
 import com.blogify.entity.Comment;
 import com.blogify.entity.Customer;
 import com.blogify.payload.CommentDto;
@@ -26,7 +27,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/v1/comments")
+@RequestMapping("/api/"+ Constants.VERSION +"/comments")
 @Tag(name = "Comment Management", description = "Operations related to managing comments")
 @SecurityRequirement(name = "bearerAuth")
 public class CommentController {

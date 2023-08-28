@@ -17,7 +17,7 @@ import io.swagger.v3.oas.annotations.servers.Server;
                 ),
                 description = "OpenApi documentation for Blogify Blog REST API",
                 title = "Blogify documentation",
-                version = "1.0.0",
+                version = "1.1.0",
                 license = @License(
                         name = "MIT License",
                         url = "https://opensource.org/licenses/MIT"

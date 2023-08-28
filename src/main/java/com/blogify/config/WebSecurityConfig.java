@@ -1,5 +1,6 @@
 package com.blogify.config;
 
+import com.blogify.Constants;
 import com.blogify.security.JwtAuthenticationEntryPoint;
 import com.blogify.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +20,7 @@ import org.springframework.security.web.access.ExceptionTranslationFilter;
 @RequiredArgsConstructor
 @Configuration
 @EnableMethodSecurity
-@EnableWebSecurity(debug = true)
+@EnableWebSecurity
 public class WebSecurityConfig {
 
     private final JwtAuthenticationEntryPoint authenticationEntryPoint;
@@ -41,7 +42,7 @@ public class WebSecurityConfig {
 
         http.csrf(csrf -> csrf.disable()).authorizeHttpRequests(
                 (authorize) -> authorize
-                        .requestMatchers("/api/v1/auth/**",
+                        .requestMatchers("/api/" + Constants.VERSION +"/auth/**",
                                          "/v3/api-docs",
                                          "/v3/api-docs/**",
                                          "/swagger-ui/**",

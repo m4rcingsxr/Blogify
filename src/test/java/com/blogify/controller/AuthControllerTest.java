@@ -1,5 +1,6 @@
 package com.blogify.controller;
 
+import com.blogify.Constants;
 import com.blogify.payload.LoginRequest;
 import com.blogify.payload.RegistrationRequest;
 import com.blogify.service.CustomerAuthenticationService;
@@ -22,8 +23,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class AuthControllerTest {
 
-    private static final String LOGIN_URL = "/api/v1/auth/login";
-    private static final String REGISTER_URL = "/api/v1/auth/register";
+    private static final String LOGIN_URL = "/api/" + Constants.VERSION + "/auth/login";
+    private static final String REGISTER_URL = "/api/" + Constants.VERSION + "/auth/register";
     private static final String JWT_TOKEN = "jwt token";
     private static final String LOGIN_JSON = "{\"email\":\"testuser@gmail.com\", \"password\":\"testpassword\"}";
     private static final String REGISTER_JSON = "{\"firstName\":\"newuser\",\"lastName\":\"abc\", \"password\":\"newpassword\", \"email\":\"newuser@example.com\"}";
@@ -73,7 +74,7 @@ class AuthControllerTest {
         invalidLoginRequest.setEmail("invalid-email");
         invalidLoginRequest.setPassword("");
 
-        mockMvc.perform(post("/api/v1/auth/login")
+        mockMvc.perform(post(LOGIN_URL)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(invalidLoginRequest)))
                 .andExpect(status().isBadRequest())
@@ -89,7 +90,7 @@ class AuthControllerTest {
         invalidRegistrationRequest.setFirstName("");
         invalidRegistrationRequest.setLastName("");
 
-        mockMvc.perform(post("/api/v1/auth/register")
+        mockMvc.perform(post(REGISTER_URL)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(invalidRegistrationRequest)))
                 .andExpect(status().isBadRequest())

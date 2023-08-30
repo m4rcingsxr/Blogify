@@ -1,6 +1,5 @@
 package com.blogify.controller;
 
-import com.blogify.Constants;
 import com.blogify.entity.Customer;
 import com.blogify.payload.CustomerDto;
 import com.blogify.payload.ResponsePage;
@@ -32,7 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 class CustomerControllerTest {
 
-    private static final String BASE_URL = "/api/" + Constants.VERSION + "/customers";
+    private static final String BASE_URL = "/customers";
     private static final long CUSTOMER_ID = 1L;
 
     @MockBean

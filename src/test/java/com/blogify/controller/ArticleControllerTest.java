@@ -1,6 +1,5 @@
 package com.blogify.controller;
 
-import com.blogify.Constants;
 import com.blogify.payload.ArticleDto;
 import com.blogify.payload.ResponsePage;
 import com.blogify.service.ArticleService;
@@ -28,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 class ArticleControllerTest {
 
-    private static final String BASE_URL = "/api/"+ Constants.VERSION +"/articles";
+    private static final String BASE_URL = "/articles";
     private static final long ARTICLE_ID = 1L;
 
     @MockBean

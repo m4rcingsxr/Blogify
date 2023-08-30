@@ -1,6 +1,5 @@
 package com.blogify.controller;
 
-import com.blogify.Constants;
 import com.blogify.payload.JWTResponse;
 import com.blogify.payload.LoginRequest;
 import com.blogify.payload.RegistrationRequest;
@@ -19,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/"+ Constants.VERSION +"/auth")
+@RequestMapping("/auth")
 @Tag(name = "Authentication", description = "Operations related to user authentication")
 public class AuthenticationController {
 

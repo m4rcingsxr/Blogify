@@ -1,6 +1,5 @@
 package com.blogify.config;
 
-import com.blogify.Constants;
 import com.blogify.security.JwtAuthenticationEntryPoint;
 import com.blogify.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
@@ -42,7 +41,7 @@ public class WebSecurityConfig {
 
         http.csrf(csrf -> csrf.disable()).authorizeHttpRequests(
                 (authorize) -> authorize
-                        .requestMatchers("/api/" + Constants.VERSION +"/auth/**",
+                        .requestMatchers("/auth/**",
                                          "/v3/api-docs",
                                          "/v3/api-docs/**",
                                          "/swagger-ui/**",

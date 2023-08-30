@@ -1,6 +1,5 @@
 package com.blogify.controller;
 
-import com.blogify.Constants;
 import com.blogify.entity.Article;
 import com.blogify.payload.ArticleDto;
 import com.blogify.payload.ErrorResponse;
@@ -24,7 +23,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/"+ Constants.VERSION +"/articles")
+@RequestMapping("/articles")
 @Tag(name = "Article Management", description = "Operations related to managing articles")
 @SecurityRequirement(name = "bearerAuth")
 public class ArticleController {

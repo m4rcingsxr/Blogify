@@ -1,6 +1,5 @@
 package com.blogify.controller;
 
-import com.blogify.Constants;
 import com.blogify.entity.Customer;
 import com.blogify.payload.CustomerDto;
 import com.blogify.payload.ErrorResponse;
@@ -24,7 +23,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/" + Constants.VERSION + "/customers")
+@RequestMapping("/customers")
 @Tag(name = "Customer Management", description = "Operations related to managing customers")
 @SecurityRequirement(name = "bearerAuth")
 public class CustomerController {

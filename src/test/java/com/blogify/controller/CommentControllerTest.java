@@ -1,7 +1,6 @@
 package com.blogify.controller;
 
 
-import com.blogify.Constants;
 import com.blogify.entity.Customer;
 import com.blogify.payload.CommentDto;
 import com.blogify.payload.ResponsePage;
@@ -33,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 class CommentControllerTest {
 
-    private static final String BASE_URL = "/api/" + Constants.VERSION + "/comments";
+    private static final String BASE_URL =  "/comments";
     private static final long COMMENT_ID = 1L;
 
     @MockBean

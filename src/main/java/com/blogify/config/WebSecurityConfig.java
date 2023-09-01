@@ -10,16 +10,17 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 
-@RequiredArgsConstructor
 @Configuration
-@EnableMethodSecurity
 @EnableWebSecurity
+@RequiredArgsConstructor
+@EnableMethodSecurity(securedEnabled = true)
 public class WebSecurityConfig {
 
     private final JwtAuthenticationEntryPoint authenticationEntryPoint;
@@ -39,18 +40,20 @@ public class WebSecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-        http.csrf(csrf -> csrf.disable()).authorizeHttpRequests(
-                (authorize) -> authorize
-                        .requestMatchers("/auth/**",
-                                         "/v3/api-docs",
-                                         "/v3/api-docs/**",
-                                         "/swagger-ui/**",
-                                         "/swagger-ui.html").permitAll()
-                        .anyRequest().authenticated()
+        http
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests((authorize) ->
+                                               authorize.requestMatchers("/auth/**",
+                                                                         "/v3/api-docs",
+                                                                         "/v3/api-docs/**",
+                                                                         "/swagger-ui/**",
+                                                                         "/swagger-ui.html"
+                                                       ).permitAll()
+                                                       .anyRequest().authenticated()
 
-        ).exceptionHandling(exception -> exception.authenticationEntryPoint(
-                authenticationEntryPoint)).sessionManagement(
-                session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+                ).exceptionHandling(exception -> exception.authenticationEntryPoint(
+                        authenticationEntryPoint)).sessionManagement(
+                        session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         http.addFilterAfter(authenticationFilter, ExceptionTranslationFilter.class);
 

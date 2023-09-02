@@ -6,11 +6,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.proxy.HibernateProxy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.security.Principal;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
@@ -22,6 +26,7 @@ import java.util.stream.Collectors;
 @Setter
 @Entity
 @Table(name = "customers")
+@EntityListeners(AuditingEntityListener.class)
 public class Customer extends BaseEntity implements UserDetails, Principal {
 
     @Column(name = "email", unique = true, nullable = false, length = 255)
@@ -42,12 +47,18 @@ public class Customer extends BaseEntity implements UserDetails, Principal {
     @Column(name = "enabled", nullable = false)
     private boolean enabled;
 
+    @CreatedDate
+    @Column(name = "created_date", nullable = false, updatable = false)
+    private LocalDateTime createdDate;
+
+    @LastModifiedDate
+    @Column(name = "last_update_date", insertable = false)
+    private LocalDateTime lastModifiedDate;
+
+
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "customers_roles",
-            joinColumns = @JoinColumn(name = "customer_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id")
-    )
+    @JoinTable(name = "customers_roles", joinColumns = @JoinColumn(name = "customer_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles;
 
     public Customer(Long id, String email, String password, String firstName, String lastName,
@@ -69,8 +80,12 @@ public class Customer extends BaseEntity implements UserDetails, Principal {
     public final boolean equals(Object o) {
         if (this == o) return true;
         if (o == null) return false;
-        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
-        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+        Class<?> oEffectiveClass = o instanceof HibernateProxy ?
+                ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() :
+                o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy ?
+                ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() :
+                this.getClass();
         if (thisEffectiveClass != oEffectiveClass) return false;
         Customer customer = (Customer) o;
         return getId() != null && Objects.equals(getId(), customer.getId());
@@ -78,7 +93,8 @@ public class Customer extends BaseEntity implements UserDetails, Principal {
 
     @Override
     public final int hashCode() {
-        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+        return this instanceof HibernateProxy ?
+                ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
 
     @Override
@@ -93,10 +109,8 @@ public class Customer extends BaseEntity implements UserDetails, Principal {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return this.roles
-                .stream()
-                .map(r -> new SimpleGrantedAuthority(r.getName()))
-                .collect(Collectors.toList());
+        return this.roles.stream().map(r -> new SimpleGrantedAuthority(r.getName())).collect(
+                Collectors.toList());
     }
 
 

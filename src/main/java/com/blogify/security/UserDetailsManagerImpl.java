@@ -9,6 +9,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.stereotype.Service;
@@ -17,7 +18,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Service
-public class CustomerDetailsManager implements UserDetailsManager {
+public class UserDetailsManagerImpl implements UserDetailsManager {
 
     private final CustomerRepository customerRepository;
 
@@ -33,14 +34,16 @@ public class CustomerDetailsManager implements UserDetailsManager {
 
     @Override
     public void updateUser(UserDetails user) {
-        Customer customer = customerRepository.findByEmail(user.getUsername()).orElseThrow(this::generateNotFoundException);
+        Customer customer = customerRepository.findByEmail(user.getUsername()).orElseThrow(
+                this::generateNotFoundException);
         customer.setPassword(passwordEncoder.encode(user.getPassword()));
         customerRepository.save(customer);
     }
 
     @Override
     public void deleteUser(String username) {
-        Customer customer = customerRepository.findByEmail(username).orElseThrow(this::generateNotFoundException);
+        Customer customer = customerRepository.findByEmail(username).orElseThrow(
+                this::generateNotFoundException);
 
         customerRepository.delete(customer);
     }
@@ -48,7 +51,8 @@ public class CustomerDetailsManager implements UserDetailsManager {
     @Override
     public void changePassword(String oldPassword, String newPassword) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        Customer customer = customerRepository.findByEmail(username).orElseThrow(this::generateNotFoundException);
+        Customer customer = customerRepository.findByEmail(username).orElseThrow(
+                this::generateNotFoundException);
 
         if (!passwordEncoder.matches(oldPassword, customer.getPassword())) {
             throw new IllegalArgumentException("Old password is incorrect");
@@ -66,7 +70,8 @@ public class CustomerDetailsManager implements UserDetailsManager {
 
     @Override
     public UserDetails loadUserByUsername(String username) { // return 401 on exception
-        Customer customer = customerRepository.findByEmail(username).orElseThrow(this::generateNotFoundException);
+        Customer customer = customerRepository.findByEmail(username).orElseThrow(
+                () -> new UsernameNotFoundException("User not found"));
 
         List<SimpleGrantedAuthority> authorities = customer.getRoles()
                 .stream()

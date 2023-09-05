@@ -1,11 +1,14 @@
 package com.blogify.service;
 
 import com.blogify.entity.Customer;
+import com.blogify.entity.Role;
 import com.blogify.exception.ApiException;
+import com.blogify.payload.JWTResponse;
 import com.blogify.payload.LoginRequest;
 import com.blogify.payload.RegistrationRequest;
 import com.blogify.repository.CustomerRepository;
-import com.blogify.security.JwtTokenProvider;
+import com.blogify.repository.RoleRepository;
+import com.blogify.security.JwtService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,20 +16,22 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.UserDetailsManager;
 
 import java.util.Collections;
+import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class CustomerAuthenticationServiceImplUnitTest {
+class AuthenticationServiceImplUnitTest {
 
     @Mock
     private AuthenticationManager authenticationManager;
@@ -38,47 +43,52 @@ class CustomerAuthenticationServiceImplUnitTest {
     private PasswordEncoder passwordEncoder;
 
     @Mock
-    private JwtTokenProvider jwtTokenProvider;
+    private JwtService jwtService;
 
     @Mock
     private UserDetailsManager userDetailsManager;
 
+    @Mock
+    private RoleRepository roleRepository;
+
+    @Mock
+    private ModelMapper modelMapper;
+
     @InjectMocks
-    private CustomerAuthenticationServiceImpl customerAuthenticationService;
+    private AuthenticationServiceImpl authenticationService;
 
     private LoginRequest loginRequest;
     private RegistrationRequest registrationRequest;
-    private Authentication authentication;
+    private Customer customer;
 
     @BeforeEach
     void setUp() {
         loginRequest = new LoginRequest("email@example.com", "password");
         registrationRequest = new RegistrationRequest("John", "Doe", "email@example.com", "password");
 
-        Customer customer = new Customer();
+        customer = new Customer();
         customer.setId(1L);
         customer.setFirstName("John");
         customer.setLastName("Doe");
         customer.setEmail("email@example.com");
         customer.setPassword("encodedPassword");
-
-        authentication = new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword(), Collections.emptyList());
     }
 
     @Test
     void givenValidLoginRequest_whenLogin_thenReturnJwtToken() {
         // Given
+        var authentication = new UsernamePasswordAuthenticationToken(customer, null, Collections.emptyList());
         given(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).willReturn(authentication);
-        given(jwtTokenProvider.generateToken(authentication)).willReturn("jwtToken");
+        given(jwtService.generateToken(any(Map.class), any(Customer.class))).willReturn("jwtToken");
 
         // When
-        String token = customerAuthenticationService.login(loginRequest);
+        JWTResponse response = authenticationService.login(loginRequest);
 
         // Then
-        assertNotNull(token);
-        assertEquals("jwtToken", token);
+        assertNotNull(response);
+        assertEquals("jwtToken", response.getAccessToken());
         then(authenticationManager).should().authenticate(any(UsernamePasswordAuthenticationToken.class));
-        then(jwtTokenProvider).should().generateToken(authentication);
+        then(jwtService).should().generateToken(any(Map.class), any(Customer.class));
     }
 
     @Test
@@ -87,8 +97,8 @@ class CustomerAuthenticationServiceImplUnitTest {
         given(userDetailsManager.userExists(registrationRequest.getEmail())).willReturn(true);
 
         // When / Then
-        ApiException exception = assertThrows(ApiException.class, () -> customerAuthenticationService.register(registrationRequest));
-        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+        ApiException exception = assertThrows(ApiException.class, () -> authenticationService.register(registrationRequest));
+        assertEquals(HttpStatus.CONFLICT, exception.getStatus());
         assertEquals("Email is already connected with different account!.", exception.getMessage());
         then(userDetailsManager).should().userExists(registrationRequest.getEmail());
         then(customerRepository).shouldHaveNoInteractions();
@@ -97,33 +107,45 @@ class CustomerAuthenticationServiceImplUnitTest {
     @Test
     void givenValidRegistrationRequest_whenRegister_thenSaveCustomer() {
         // Given
+        Role roleUser = new Role();
+        roleUser.setId(3L);
+        roleUser.setName("ROLE_USER");
+
         given(userDetailsManager.userExists(registrationRequest.getEmail())).willReturn(false);
         given(passwordEncoder.encode(registrationRequest.getPassword())).willReturn("encodedPassword");
+        given(roleRepository.findByName("ROLE_USER")).willReturn(Optional.of(roleUser));
+        given(modelMapper.map(registrationRequest, Customer.class)).willReturn(customer);
 
         // When
-        String result = customerAuthenticationService.register(registrationRequest);
+        authenticationService.register(registrationRequest);
 
         // Then
-        assertEquals("User registered successfully!.", result);
         then(userDetailsManager).should().userExists(registrationRequest.getEmail());
-        then(passwordEncoder).should().encode(registrationRequest.getPassword());
+        then(passwordEncoder).should().encode("password");
         then(customerRepository).should().save(any(Customer.class));
     }
 
     @Test
     void givenValidRegistrationRequest_whenRegister_thenCustomerShouldHaveRoles() {
+
         // Given
+        Role userRole = new Role();
+        userRole.setId(3L);
+        userRole.setName("ROLE_USER");
+
         given(userDetailsManager.userExists(registrationRequest.getEmail())).willReturn(false);
         given(passwordEncoder.encode(registrationRequest.getPassword())).willReturn("encodedPassword");
+        given(roleRepository.findByName("ROLE_USER")).willReturn(Optional.of(userRole));
+        given(modelMapper.map(registrationRequest, Customer.class)).willReturn(customer);
 
         // When
-        customerAuthenticationService.register(registrationRequest);
+        authenticationService.register(registrationRequest);
 
         // Then
         ArgumentCaptor<Customer> customerArgumentCaptor = ArgumentCaptor.forClass(Customer.class);
         then(customerRepository).should().save(customerArgumentCaptor.capture());
         Customer savedCustomer = customerArgumentCaptor.getValue();
         assertEquals(1, savedCustomer.getRoles().size());
-        assertTrue(savedCustomer.getRoles().stream().anyMatch(role -> role.getId() == 3));
+        assertTrue(savedCustomer.getRoles().contains(userRole));
     }
 }

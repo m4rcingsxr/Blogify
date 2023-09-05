@@ -17,7 +17,6 @@ import java.util.List;
 		scanBasePackages={"com.blogify"}
 )
 @RequiredArgsConstructor
-@EnableJpaAuditing
 public class BlogifyApplication implements CommandLineRunner {
 
 	private final RoleRepository roleRepository;

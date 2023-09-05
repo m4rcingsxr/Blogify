@@ -11,11 +11,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -29,7 +29,10 @@ class JwtAuthenticationFilterUnitTest {
     private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Mock
-    private JwtTokenProvider jwtTokenProvider;
+    private JwtService jwtService;
+
+    @Mock
+    private UserDetailsManagerImpl userDetailsManager;
 
     @Mock
     private HttpServletRequest request;
@@ -50,13 +53,18 @@ class JwtAuthenticationFilterUnitTest {
 
         // Given
         String token = "valid-jwt-token";
-        String username = "testuser";
-        Collection<GrantedAuthority> authorities = List.of();
+        String email = "testuser@example.com";
+        UserDetails userDetails = new org.springframework.security.core.userdetails.User(
+                email,
+                "password",
+                List.of(new SimpleGrantedAuthority("ROLE_USER"))
+        );
 
         when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
-        when(jwtTokenProvider.validateToken(token)).thenReturn(true);
-        when(jwtTokenProvider.getUsername(token)).thenReturn(username);
-        when(jwtTokenProvider.getAuthorities(token)).thenReturn(authorities);
+        when(request.getServletPath()).thenReturn("/some-path");
+        when(jwtService.extractUsername(token)).thenReturn(email);
+        when(userDetailsManager.loadUserByUsername(email)).thenReturn(userDetails);
+        when(jwtService.isTokenValid(token, userDetails)).thenReturn(true);
 
         // When
         jwtAuthenticationFilter.doFilterInternal(request, response, filterChain);
@@ -66,11 +74,11 @@ class JwtAuthenticationFilterUnitTest {
                 (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
 
         assertNotNull(authentication);
-        assertEquals(username, authentication.getPrincipal());
-        assertEquals(authorities, authentication.getAuthorities());
-        verify(jwtTokenProvider).validateToken(token);
-        verify(jwtTokenProvider).getUsername(token);
-        verify(jwtTokenProvider).getAuthorities(token);
+        assertEquals(userDetails, authentication.getPrincipal());
+        assertIterableEquals(userDetails.getAuthorities(), authentication.getAuthorities());
+        verify(jwtService).extractUsername(token);
+        verify(jwtService).isTokenValid(token, userDetails);
+        verify(userDetailsManager).loadUserByUsername(email);
         verify(filterChain).doFilter(request, response);
     }
 
@@ -81,16 +89,17 @@ class JwtAuthenticationFilterUnitTest {
         String token = "invalid-jwt-token";
 
         when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
-        when(jwtTokenProvider.validateToken(token)).thenReturn(false);
+        when(request.getServletPath()).thenReturn("/some-path");
+        when(jwtService.extractUsername(token)).thenReturn(null);
 
         // When
         jwtAuthenticationFilter.doFilterInternal(request, response, filterChain);
 
         // Then
         assertNull(SecurityContextHolder.getContext().getAuthentication());
-        verify(jwtTokenProvider).validateToken(token);
-        verify(jwtTokenProvider, never()).getUsername(any());
-        verify(jwtTokenProvider, never()).getAuthorities(any());
+        verify(jwtService).extractUsername(token);
+        verify(jwtService, never()).isTokenValid(any(), any());
+        verify(userDetailsManager, never()).loadUserByUsername(any());
         verify(filterChain).doFilter(request, response);
     }
 
@@ -99,15 +108,33 @@ class JwtAuthenticationFilterUnitTest {
 
         // Given
         when(request.getHeader("Authorization")).thenReturn(null);
+        when(request.getServletPath()).thenReturn("/some-path");
 
         // When
         jwtAuthenticationFilter.doFilterInternal(request, response, filterChain);
 
         // Then
         assertNull(SecurityContextHolder.getContext().getAuthentication());
-        verify(jwtTokenProvider, never()).validateToken(any());
-        verify(jwtTokenProvider, never()).getUsername(any());
-        verify(jwtTokenProvider, never()).getAuthorities(any());
+        verify(jwtService, never()).extractUsername(any());
+        verify(jwtService, never()).isTokenValid(any(), any());
+        verify(userDetailsManager, never()).loadUserByUsername(any());
+        verify(filterChain).doFilter(request, response);
+    }
+
+    @Test
+    void givenAuthPath_whenDoFilterInternal_thenDoNotAuthenticate() throws ServletException, IOException {
+
+        // Given
+        when(request.getServletPath()).thenReturn("/auth/login");
+
+        // When
+        jwtAuthenticationFilter.doFilterInternal(request, response, filterChain);
+
+        // Then
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
+        verify(jwtService, never()).extractUsername(any());
+        verify(jwtService, never()).isTokenValid(any(), any());
+        verify(userDetailsManager, never()).loadUserByUsername(any());
         verify(filterChain).doFilter(request, response);
     }
 }

@@ -1,8 +1,9 @@
 package com.blogify.controller;
 
+import com.blogify.payload.JWTResponse;
 import com.blogify.payload.LoginRequest;
 import com.blogify.payload.RegistrationRequest;
-import com.blogify.service.CustomerAuthenticationService;
+import com.blogify.service.AuthenticationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +12,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -20,7 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class AuthControllerTest {
+class AuthenticationControllerTest {
 
     private static final String LOGIN_URL = "/auth/login";
     private static final String REGISTER_URL = "/auth/register";
@@ -29,7 +29,7 @@ class AuthControllerTest {
     private static final String REGISTER_JSON = "{\"firstName\":\"newuser\",\"lastName\":\"abc\", \"password\":\"newpassword\", \"email\":\"newuser@example.com\"}";
 
     @MockBean
-    private CustomerAuthenticationService authService;
+    private AuthenticationService authService;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -39,9 +39,10 @@ class AuthControllerTest {
 
     @Test
     void givenValidLoginRequest_whenLogin_thenReturnsToken() throws Exception {
-        when(authService.login(any(LoginRequest.class))).thenReturn(JWT_TOKEN);
+        JWTResponse jwtResponse = new JWTResponse(JWT_TOKEN, "Bearer");
+        when(authService.login(any(LoginRequest.class))).thenReturn(jwtResponse);
 
-        mockMvc.perform(MockMvcRequestBuilders.post(LOGIN_URL)
+        mockMvc.perform(post(LOGIN_URL)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(LOGIN_JSON))
                 .andExpect(status().isOk())
@@ -53,16 +54,13 @@ class AuthControllerTest {
     }
 
     @Test
-    void givenValidRegistrationRequest_whenRegister_thenReturnsCreated() throws Exception {
-        String response = "User registered successfully";
+    void givenValidRegistrationRequest_whenRegister_thenReturnsAccepted() throws Exception {
+        doNothing().when(authService).register(any(RegistrationRequest.class));
 
-        when(authService.register(any(RegistrationRequest.class))).thenReturn(response);
-
-        mockMvc.perform(MockMvcRequestBuilders.post(REGISTER_URL)
+        mockMvc.perform(post(REGISTER_URL)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(REGISTER_JSON))
-                .andExpect(status().isCreated())
-                .andExpect(content().string(response));
+                .andExpect(status().isAccepted());
 
         verify(authService, times(1)).register(any(RegistrationRequest.class));
     }
@@ -98,5 +96,4 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.firstName").value("First name cannot be blank"))
                 .andExpect(jsonPath("$.lastName").value("Last name cannot be blank"));
     }
-
 }

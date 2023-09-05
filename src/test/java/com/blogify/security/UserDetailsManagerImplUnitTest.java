@@ -15,6 +15,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Collections;
@@ -26,7 +27,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class CustomerDetailsManagerUnitTest {
+class UserDetailsManagerImplUnitTest {
 
     @Mock
     private CustomerRepository customerRepository;
@@ -41,7 +42,7 @@ class CustomerDetailsManagerUnitTest {
     private Authentication authentication;
 
     @InjectMocks
-    private CustomerDetailsManager customerDetailsManager;
+    private UserDetailsManagerImpl customerDetailsManager;
 
     private Customer customer;
 
@@ -163,9 +164,9 @@ class CustomerDetailsManagerUnitTest {
     }
 
     @Test
-    void givenNotExistingUsername_whenLoadUserByUsername_thenShouldThrowApiException() {
+    void givenNotExistingUsername_whenLoadUserByUsername_thenShouldThrowUsernameNotFoundException() {
         when(customerRepository.findByEmail(customer.getEmail())).thenReturn(Optional.empty());
 
-        assertThrows(ApiException.class, () -> customerDetailsManager.loadUserByUsername(customer.getEmail()));
+        assertThrows(UsernameNotFoundException.class, () -> customerDetailsManager.loadUserByUsername(customer.getEmail()));
     }
 }

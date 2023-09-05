@@ -6,9 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.proxy.HibernateProxy;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -26,7 +24,6 @@ import java.util.stream.Collectors;
 @Setter
 @Entity
 @Table(name = "customers")
-@EntityListeners(AuditingEntityListener.class)
 public class Customer extends BaseEntity implements UserDetails, Principal {
 
     @Column(name = "email", unique = true, nullable = false, length = 255)
@@ -42,18 +39,16 @@ public class Customer extends BaseEntity implements UserDetails, Principal {
     private String lastName;
 
     @Column(name = "account_locked", nullable = false)
-    private boolean accountLocked;
+    private boolean accountLocked = false;
 
     @Column(name = "enabled", nullable = false)
-    private boolean enabled;
+    private boolean enabled = false;
 
-    @CreatedDate
     @Column(name = "created_date", nullable = false, updatable = false)
-    private LocalDateTime createdDate;
+    private LocalDateTime createdDate = LocalDateTime.now();
 
-    @LastModifiedDate
-    @Column(name = "last_update_date", insertable = false)
-    private LocalDateTime lastModifiedDate;
+    @Column(name = "updated_date", insertable = false)
+    private LocalDateTime lastModifiedDate = LocalDateTime.now();
 
 
     @ManyToMany(fetch = FetchType.EAGER)
@@ -71,30 +66,17 @@ public class Customer extends BaseEntity implements UserDetails, Principal {
         this.roles = roles;
     }
 
+    public void addRole(Role role) {
+        if(this.roles == null) {
+            this.roles = new HashSet<>();
+        }
+
+        roles.add(role);
+    }
+
     @Transient
     public String getFullName() {
         return firstName + " " + lastName;
-    }
-
-    @Override
-    public final boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null) return false;
-        Class<?> oEffectiveClass = o instanceof HibernateProxy ?
-                ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() :
-                o.getClass();
-        Class<?> thisEffectiveClass = this instanceof HibernateProxy ?
-                ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() :
-                this.getClass();
-        if (thisEffectiveClass != oEffectiveClass) return false;
-        Customer customer = (Customer) o;
-        return getId() != null && Objects.equals(getId(), customer.getId());
-    }
-
-    @Override
-    public final int hashCode() {
-        return this instanceof HibernateProxy ?
-                ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
 
     @Override
@@ -132,5 +114,26 @@ public class Customer extends BaseEntity implements UserDetails, Principal {
     @Override
     public boolean isEnabled() {
         return this.enabled;
+    }
+
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        Class<?> oEffectiveClass = o instanceof HibernateProxy ?
+                ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() :
+                o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy ?
+                ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() :
+                this.getClass();
+        if (thisEffectiveClass != oEffectiveClass) return false;
+        Customer customer = (Customer) o;
+        return getId() != null && Objects.equals(getId(), customer.getId());
+    }
+
+    @Override
+    public final int hashCode() {
+        return this instanceof HibernateProxy ?
+                ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
 }

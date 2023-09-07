@@ -1,10 +1,11 @@
 package com.blogify.payload;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.*;
 
+@Getter
+@Setter
+@Builder
 @AllArgsConstructor
-@Data
 public class ErrorResponse {
 
     private Integer status;

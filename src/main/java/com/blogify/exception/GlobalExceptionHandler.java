@@ -134,6 +134,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 );
                 break;
 
+            case CONFLICT:
+                errorResponse = new ErrorResponse(HttpStatus.CONFLICT.value(),
+                                                  ex.getMessage(), Instant.now().getEpochSecond()
+                );
+                break;
+
             default:
                 errorResponse = new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(),
                                                   ex.getMessage(), Instant.now().getEpochSecond()

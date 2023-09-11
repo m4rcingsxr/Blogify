@@ -85,7 +85,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     private void validateEmailInput(String email) {
         if (userDetailsManager.userExists(email)) {
-            throw new ApiException(HttpStatus.CONFLICT, "Email is already connected with different account!."
+                throw new ApiException(HttpStatus.CONFLICT, "Email is already connected with different account!."
             );
         }
     }

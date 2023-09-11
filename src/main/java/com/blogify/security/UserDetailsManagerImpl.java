@@ -70,15 +70,8 @@ public class UserDetailsManagerImpl implements UserDetailsManager {
 
     @Override
     public UserDetails loadUserByUsername(String username) { // return 401 on exception
-        Customer customer = customerRepository.findByEmail(username).orElseThrow(
+        return customerRepository.findByEmail(username).orElseThrow(
                 () -> new UsernameNotFoundException("User not found"));
-
-        List<SimpleGrantedAuthority> authorities = customer.getRoles()
-                .stream()
-                .map(role -> new SimpleGrantedAuthority(role.getName()))
-                .toList();
-
-        return new User(customer.getEmail(), customer.getPassword(), authorities);
     }
 
     private ApiException generateNotFoundException() {

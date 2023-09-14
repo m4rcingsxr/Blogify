@@ -1,10 +1,7 @@
 package com.blogify.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -14,6 +11,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Entity
 @Table(name = "token")
+@Builder
 public class Token extends BaseEntity {
 
     @Column(name = "jwt_token", unique = true, nullable = false)
@@ -24,9 +22,6 @@ public class Token extends BaseEntity {
 
     @Column(name = "expire_date", nullable = false)
     private LocalDateTime expiresAt;
-
-    @Column(name = "validation_date", nullable = false)
-    private LocalDateTime validateAt;
 
     @ManyToOne
     @JoinColumn(name = "customer_id", nullable = false)

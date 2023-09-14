@@ -30,10 +30,12 @@ public class EmailService {
             String to,
             String username,
             TemplateName templateName,
-            String confirmationUrl,
+            String baseConfirmationUrl,
             String activationCode,
             String subject
     ) throws MessagingException {
+        String confirmationUrl = baseConfirmationUrl + ("?code=" + activationCode);
+
         MimeMessage mimeMessage = mailSender.createMimeMessage();
         MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(
                 mimeMessage,

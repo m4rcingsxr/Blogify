@@ -7,14 +7,12 @@ import com.blogify.service.AuthenticationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
@@ -48,9 +46,16 @@ public class AuthenticationController {
             }
     )
     @PostMapping(value = {"/register", "/signup"})
-    public ResponseEntity<String> register(@Valid @RequestBody RegistrationRequest registerDto) {
+    public ResponseEntity<String> register(@Valid @RequestBody RegistrationRequest registerDto)
+            throws MessagingException {
         authService.register(registerDto);
         return ResponseEntity.accepted().build();
+    }
+
+    @GetMapping("/activate-account")
+    public void activate(@RequestParam String token
+    ) throws MessagingException {
+        authService.activate(token);
     }
 
 }

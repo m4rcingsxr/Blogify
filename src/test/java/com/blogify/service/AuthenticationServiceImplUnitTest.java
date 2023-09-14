@@ -9,6 +9,7 @@ import com.blogify.payload.RegistrationRequest;
 import com.blogify.repository.CustomerRepository;
 import com.blogify.repository.RoleRepository;
 import com.blogify.security.JwtService;
+import jakarta.mail.MessagingException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -105,7 +106,7 @@ class AuthenticationServiceImplUnitTest {
     }
 
     @Test
-    void givenValidRegistrationRequest_whenRegister_thenSaveCustomer() {
+    void givenValidRegistrationRequest_whenRegister_thenSaveCustomer() throws MessagingException {
         // Given
         Role roleUser = new Role();
         roleUser.setId(3L);
@@ -126,7 +127,8 @@ class AuthenticationServiceImplUnitTest {
     }
 
     @Test
-    void givenValidRegistrationRequest_whenRegister_thenCustomerShouldHaveRoles() {
+    void givenValidRegistrationRequest_whenRegister_thenCustomerShouldHaveRoles()
+            throws MessagingException {
 
         // Given
         Role userRole = new Role();

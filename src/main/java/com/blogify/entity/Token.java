@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Builder
 public class Token extends BaseEntity {
 
-    @Column(name = "jwt_token", unique = true, nullable = false)
+    @Column(name = "verification_token", unique = true, nullable = false)
     private String token;
 
     @Column(name = "created_date", nullable = false)

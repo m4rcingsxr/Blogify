@@ -1,5 +1,6 @@
 package com.blogify.payload;
 
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -17,13 +18,18 @@ import java.util.List;
 @Data
 public class CategoryDto extends EntityDto {
 
-    @Schema(description = "Name of the category", example = "Technology")
+    @Schema(description = "Name of the category",
+            example = "Technology",
+            nullable = false,
+            maxLength = 255)
     @NotNull(message = "Category name cannot be null")
     @NotBlank(message = "Category name cannot be blank")
-    @Size(max = 255, message = "Category cannot exceed 255 characters")
+    @Size(max = 255, message = "Category name cannot exceed 255 characters")
     private String name;
 
-    @Schema(description = "Articles for category", nullable = true)
+    @ArraySchema(schema = @Schema(description = "Articles for the category",
+            nullable = true,
+            implementation = ArticleDto.class))
     private List<ArticleDto> articles;
 
 }

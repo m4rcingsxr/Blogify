@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -40,14 +41,14 @@ public class CommentController {
             parameters = {
                     @Parameter(name = "page", description = "Page number for pagination", example = "0"),
                     @Parameter(name = "sort", description = "Sorting criteria in the format: [property...],(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.", example = "createdAt,desc")
-            },
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "Successfully retrieved list of comments", content = @Content(schema = @Schema(implementation = ResponsePage.class))),
-                    @ApiResponse(responseCode = "401", description = "Unauthorized / Invalid Token", content = @Content),
-                    @ApiResponse(responseCode = "403", description = "Forbidden access", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(responseCode = "404", description = "Comment not found", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
             }
     )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved list of comments", content = @Content(schema = @Schema(implementation = ResponsePage.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized / Invalid Token", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "403", description = "Forbidden access", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Comment not found", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @GetMapping
     public ResponseEntity<ResponsePage<CommentDto>> findAll(
             @RequestParam(value = "page", defaultValue = "0") Integer page,
@@ -62,14 +63,14 @@ public class CommentController {
             description = "Retrieve a comment by its ID",
             parameters = {
                     @Parameter(name = "commentId", description = "ID of the comment to be retrieved", required = true)
-            },
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "Successfully retrieved comment", content = @Content(schema = @Schema(implementation = CommentDto.class))),
-                    @ApiResponse(responseCode = "401", description = "Unauthorized / Invalid Token", content = @Content),
-                    @ApiResponse(responseCode = "403", description = "Forbidden access", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(responseCode = "404", description = "Comment not found", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
             }
     )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved comment", content = @Content(schema = @Schema(implementation = CommentDto.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized / Invalid Token", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "403", description = "Forbidden access", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Comment not found", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @GetMapping("/{commentId}")
     public ResponseEntity<CommentDto> findById(@PathVariable Long commentId) {
         return ResponseEntity.ok(commentService.findById(commentId));
@@ -78,19 +79,18 @@ public class CommentController {
     @Operation(
             summary = "Create a new comment",
             description = "Create a new comment",
-            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Details of the new comment to be created", required = true, content = @Content(schema = @Schema(implementation = CommentDto.class))),
-            responses = {
-                    @ApiResponse(responseCode = "201", description = "Successfully created comment", content = @Content(schema = @Schema(implementation = CommentDto.class))),
-                    @ApiResponse(responseCode = "400", description = "Invalid input", content = @Content),
-                    @ApiResponse(responseCode = "401", description = "Unauthorized / Invalid Token", content = @Content),
-                    @ApiResponse(responseCode = "403", description = "Forbidden access", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-            }
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Details of the new comment to be created", required = true, content = @Content(schema = @Schema(implementation = CommentDto.class)))
     )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Successfully created comment", content = @Content(schema = @Schema(implementation = CommentDto.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid input", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized / Invalid Token", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "403", description = "Forbidden access", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @PostMapping
     public ResponseEntity<CommentDto> create(@Valid @RequestBody CommentDto comment, Authentication authentication) {
         Customer authenticatedCustomer = getAuthenticatedCustomer(authentication);
         comment.setFullName(authenticatedCustomer.getFullName());
-
         return new ResponseEntity<>(commentService.create(comment), HttpStatus.CREATED);
     }
 
@@ -100,21 +100,20 @@ public class CommentController {
             parameters = {
                     @Parameter(name = "commentId", description = "ID of the comment to be updated", required = true)
             },
-            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Updated details of the comment", required = true, content = @Content(schema = @Schema(implementation = CommentDto.class))),
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "Successfully updated comment", content = @Content(schema = @Schema(implementation = CommentDto.class))),
-                    @ApiResponse(responseCode = "400", description = "Invalid input", content = @Content),
-                    @ApiResponse(responseCode = "401", description = "Unauthorized / Invalid Token", content = @Content),
-                    @ApiResponse(responseCode = "403", description = "Forbidden access", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(responseCode = "404", description = "Comment not found", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-            }
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Updated details of the comment", required = true, content = @Content(schema = @Schema(implementation = CommentDto.class)))
     )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully updated comment", content = @Content(schema = @Schema(implementation = CommentDto.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid input", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized / Invalid Token", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "403", description = "Forbidden access", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Comment not found", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @PutMapping("/{commentId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'EDITOR')")
     public ResponseEntity<CommentDto> update(@PathVariable Long commentId, @Valid @RequestBody CommentDto comment, Authentication authentication) {
         Customer authenticatedCustomer = getAuthenticatedCustomer(authentication);
         comment.setFullName(authenticatedCustomer.getFullName());
-
         return ResponseEntity.ok(commentService.update(commentId, comment));
     }
 
@@ -123,14 +122,14 @@ public class CommentController {
             description = "Delete a comment by its ID",
             parameters = {
                     @Parameter(name = "commentId", description = "ID of the comment to be deleted", required = true)
-            },
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "Successfully deleted comment", content = @Content),
-                    @ApiResponse(responseCode = "401", description = "Unauthorized / Invalid Token", content = @Content),
-                    @ApiResponse(responseCode = "403", description = "Forbidden access", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(responseCode = "404", description = "Comment not found", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
             }
     )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully deleted comment", content = @Content),
+            @ApiResponse(responseCode = "401", description = "Unauthorized / Invalid Token", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "403", description = "Forbidden access", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Comment not found", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @DeleteMapping("/{commentId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'EDITOR')")
     public ResponseEntity<Void> delete(@PathVariable Long commentId) {

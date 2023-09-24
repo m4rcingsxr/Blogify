@@ -44,7 +44,7 @@ public class AuthenticationController {
 
     @Operation(
             summary = "User registration",
-            description = "Register a new user"
+            description = "Register a new user. Sends an email with activation token"
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "202", description = "Successfully registered new user", content = @Content),
@@ -70,7 +70,7 @@ public class AuthenticationController {
     })
     @GetMapping("/activate-account")
     public ResponseEntity<Void> activate(
-            @Parameter(description = "Activation token", required = true, example = "abcdef123456")
+            @Parameter(description = "Activation token", required = true)
             @RequestParam String token) throws MessagingException {
         authService.activate(token);
         return ResponseEntity.ok().build();

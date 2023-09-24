@@ -103,7 +103,7 @@ public class Customer extends BaseEntity implements UserDetails, Principal {
 
     @Override
     public boolean isAccountNonLocked() {
-        return false;
+        return !this.accountLocked;
     }
 
     @Override

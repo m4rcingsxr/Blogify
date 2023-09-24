@@ -72,13 +72,16 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 () -> new ApiException(HttpStatus.UNAUTHORIZED, "Invalid activation token."));
         if(LocalDateTime.now().isAfter(activationToken.getExpiresAt())) {
             sendValidationEmail(activationToken.getCustomer(), generateVerificationCode());
+            tokenRepository.delete(activationToken);
+
+            throw new ApiException(HttpStatus.BAD_REQUEST, "Token is expired, new token has been send");
         }
 
         Customer customer = customerRepository.findById(activationToken.getCustomer().getId())
                 .orElseThrow(() -> new UsernameNotFoundException("Customer not found"));
+
         customer.setEnabled(true);
         customerRepository.save(customer);
-
         tokenRepository.delete(activationToken);
     }
 

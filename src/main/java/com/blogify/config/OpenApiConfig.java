@@ -17,7 +17,7 @@ import io.swagger.v3.oas.annotations.servers.Server;
                 ),
                 description = "OpenApi documentation for Blogify Blog REST API",
                 title = "Blogify documentation",
-                version = "1.1.0",
+                version = "1.2.0",
                 license = @License(
                         name = "MIT License",
                         url = "https://opensource.org/licenses/MIT"
@@ -26,17 +26,12 @@ import io.swagger.v3.oas.annotations.servers.Server;
         ),
         servers = {
                 @Server(
-                        description = "localhost",
-                        url = "http://localhost:8080/blogify/api/1.1"
-                ),
-                @Server(
                         description = "Prod ENV",
                         url = "http://blogify-env.eba-yrg2gm78.eu-north-1.elasticbeanstalk.com/blogify"
                 )
         }
-//       , security = @SecurityRequirement(name = "bearerAuth") // globally - per class we could change authentication type for each controller
 )
-@SecurityScheme( // use schemes to define more than one
+@SecurityScheme(
         name = "bearerAuth",
         description = "JWT auth description",
         scheme = "bearer",

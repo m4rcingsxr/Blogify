@@ -99,6 +99,9 @@ public class WebSecurityConfig {
                 "DELETE",
                 "PUT"
         ));
+        // Allow specific origin
+        config.setAllowedOrigins(Collections.singletonList("https://blogify.fun"));
+
         source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);
     }

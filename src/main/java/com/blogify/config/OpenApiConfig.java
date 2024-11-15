@@ -26,8 +26,8 @@ import io.swagger.v3.oas.annotations.servers.Server;
         ),
         servers = {
                 @Server(
-                        description = "Prod ENV",
-                        url = "http://blogify-env.eba-yrg2gm78.eu-north-1.elasticbeanstalk.com/blogify"
+                        description = "PROD",
+                        url = "https://blogify.fun/api/1.2"
                 )
         }
 )
